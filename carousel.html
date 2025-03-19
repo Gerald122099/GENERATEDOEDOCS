@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
+    <title>Step Carousel</title>
+    <style>
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #ffffff;
+    line-height: 1.6; 
+    margin: 0;
+    padding: 0;
+    font-family: 'Montserrat', sans-serif; 
+}
+
+.carousel-container {
+    width: 1200px; /* Adjust container width */
+    height: 100%;
+    overflow: hidden;
+    background: white;
+    padding: 20px;
+    text-align: left;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center; /* Center the carousel items */
+    align-items: center;
+    
+  
+}
+
+.carousel-set {
+    position: absolute;
+    width: 1200px; /* Ensure sets take full width */
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center items horizontally */
+}
+
+.carousel-set.active {
+    opacity: 1;
+}
+
+.carousel-item {
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    margin-bottom: 20px;
+    width: 100%; /* Set a fixed width */
+    font-family: 'Montserrat';
+    font-size: 14px;
+    margin-top: 10px;
+    border: 1px solid rgb(157, 157, 157);
+    background-image: linear-gradient(to right, #f0f0f0, #ffffff);
+    padding: 15px;
+    border-radius: 8px;
+    box-sizing: border-box; /* Ensure padding is included in the width */
+}
+.carousel-item.visible {
+    opacity: 1;
+}
+
+h3 {
+    background-color: #14006b;
+    color: #ffffff;
+    padding: 10px;
+    margin-bottom: 10px;
+    width: 500px; 
+    font-size: 14px; 
+    border-radius: 5px; 
+    height: 23px;
+    
+}
+
+p {
+    padding: 10px;
+    margin-top: 1px;
+    font-size: 14px; 
+    line-height: 1.6; 
+}
+
+.step {
+    background-color: #c90000;
+    color: #ffffff;
+    padding: 10px;
+    height: 20px;
+    margin-bottom: 10px;
+    width: 100px;
+    font-family: 'Montserrat';
+    font-size: 14px; 
+    border-radius: 5px; 
+}
+
+.responsible {
+    background-color: #14006b;
+    color: #0b0a0a;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    width: 100%; 
+    font-size: 14px; 
+}
+
+h4{
+    font-size: 15px; 
+    font-family: 'Montserrat';
+    color: white;
+    font-weight: bold;
+    margin-top: 13px
+}
+
+h5 {
+    background-color: #ced5eb;
+    color: #9d0000;
+    width: 100%; 
+    font-family:'Verdana';
+    padding: 4px;
+    top: 10px;
+      
+    font-size: 14px; 
+    border-radius: 5px;
+    
+    
+}
+
+.flag {
+    width: 110px;
+    height: 35px;
+    box-sizing: content-box;
+    padding-top: 15px;
+    position: relative;
+    background: red;
+    font-size: 12px; 
+    letter-spacing: 0.2em;
+    text-align: center;
+    text-transform: uppercase;
+    border-radius: 5px;
+    z-index: 10;
+    left: -10px;
+}
+
+.flag:after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    height: 0;
+    border-bottom: 13px solid #14006b;
+    border-left: 55px solid transparent;
+    border-right: 55px solid transparent;
+}
+ .title{
+    position: relative;
+    top: -50px;
+    z-index: 2;
+    padding-left: 120px;
+    width: 300px;
+    text-align: left;
+    font-weight: bold;
+    
+ }
+
+ .step1{
+    position: relative;
+    top: -50px;
+    z-index: 3;
+    padding-left: 20px;
+    font-size: 22px;
+ }
+ .steps{
+    position: relative;
+    top: -20px;
+    z-index: 2;
+    padding-left: 5px;
+    color: white;
+    font-family: 'Montserrat';
+ }
+ .step2{
+    position: relative;
+    top: -50px;
+    z-index: 3;
+    padding-left: 20px;
+    font-size: 21px
+ }
+ .step3{
+    position: relative;
+    top: -50px;
+    z-index: 3;
+    padding-left: 20px;
+    font-size: 20px
+ }
+ .step4{
+    position: relative;
+    top: -50px;
+    z-index: 3;
+    padding-left: 20px;
+    font-size: 20px
+ }
+ .step6{
+    position: relative;
+    top: -50px;
+    z-index: 3;
+    padding-left: 20px;
+    font-size: 20px
+ }
+ .step7{
+    position: relative;
+    top: -50px;
+    z-index: 3;
+    padding-left: 20px;
+    font-size: 18px
+ }
+
+ .pointer {
+  width: 150px;
+  height: 40px;
+  position: relative;
+  background: rgb(253, 160, 11);
+}
+.pointer:after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  border-left: 20px solid rgb(255, 255, 255);
+  border-top: 20px solid transparent;
+  border-bottom: 20px solid transparent;
+}
+.pointer:before {
+  content: "";
+  position: absolute;
+  right: -20px;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  border-left: 20px solid rgb(253, 160, 11);
+  border-top: 20px solid transparent;
+  border-bottom: 20px solid transparent;
+}
+ .days{
+    position: relative;
+    top: -50px;
+    z-index: 3;
+    font-size: 20px;
+    background-color: #ffc800;
+    color: #181818;
+    width: 150px; 
+    font-family: 'Verdana';
+    padding: 4px;
+    border-radius: 8px;
+    left: 700px;;
+    text-align: center;
+}
+.zoom-container {
+  transform: scale(.67); /* Adjust scale factor as needed */
+  transform-origin: center; /* Keeps scaling anchored at top-left */
+  padding-bottom: 200px;
+}
+ 
+    </style>
+</head>
+<body>
+    <div class="zoom-container">
+    <div class="carousel-container">
+        <div class="carousel-set active">
+            <div class="carousel-item" style="height: 230px;" data-duration="12000">
+
+                
+                <div class="flag"><h4 class="steps">Step 1</h4></div>  <h3 class="title">Receive and Log the Documents</h3>
+                <p class="step1">Receive and logs the application details to the application tracker and forward it to the assigned processor</p>
+                <h5 style=" margin-top: -60px;">RESPONSIBLE PERSON: EIMD</h5>
+                
+                
+            </div>
+            <div class="carousel-item" style="height: 290px;" data-duration="25000">
+                <div class="flag"><h4 class="steps">Step 2</h4></div>  <h3 class="title">Complete Documentary Requirements</h3>
+               
+                <p class="step2" ><strong>1.b</strong> Assess documents per checklist.
+                   <br> <strong>Walk-ins:</strong>  Record and forward compliant applications; return non-compliant ones with reasons.
+                    <br><strong>Mailed:</strong> Record, forward, and notify clients of missing documents.
+                   <br> <strong>1.c</strong>  Process <strong>DOE Clearance </strong> request and forward to <strong>Legal Section.</strong></p>
+                  
+                <h5 style=" margin-top: -70px;">RESPONSIBLE PERSON: EIMD</h5>
+                
+            </div>
+          
+           
+        </div>
+        <div class="carousel-set">
+
+
+            <div class="carousel-item" style="height: 250px;" data-duration="18000">
+                <div class="flag"><h4 class="steps">Step 3</h4></div>  <h3 class="title">Issuance of Legal Clearance</h3>
+                <p class="step3"> <strong>1.c.i</strong>  A <strong>DOE Clearance of No Pending Case</strong> is issued for applicant with no pending case, otherwise, the applicant will settle the case prior to issuance of the <strong>DOE Clearance of No Pending Case.</strong> A reapplication is required for the latter case.
+                <br> </p>
+
+                <h5 style=" margin-top: -60px;">RESPONSIBLE PERSON: ATTY. BUSI & TASONG</h5>
+            </div>
+
+            <div class="carousel-item" style="height: 210px;"  data-duration="20000">
+                <div class="flag"><h4 class="steps">Step 4</h4></div>  <h3 class="title">Issuance of Billing Statement</h3>
+                <p class="step4"><strong>2. </strong>Accomplishes the <strong>Billing Statement</strong> through the <strong>DOE Collection Monitoring System (COMS).</strong>
+                <br><strong>2.a</strong> Sends<strong> Order of Payment</strong>, to applicant, copy furnished to the Assessor, upon prompting from <strong>COMS.</strong></p>
+                <h5 style=" margin-top: -70px;">RESPONSIBLE PERSON: EIMD</h5>
+            </div>
+
+           
+        </div>
+
+
+
+        <div class="carousel-set">
+
+            <div class="carousel-item" style="height: 200px;" data-duration="10000">
+                <div class="flag"><h4 class="steps">Step 5</h4></div>  <h3 class="title">Issuance of Official Receipt</h3>
+                <p class="step4">Receive the payment and <strong> Issuance of Official Receipt</strong></p>
+                <h5 style=" margin-top: -55px;">RESPONSIBLE PERSON: ANESLAGON, A.M.	</h5>
+            </div>
+            <div class="carousel-item"  style="height: 230px;" data-duration="15000">
+                <div class="flag"><h4 class="steps">Step 6</h4></div>  <h3 class="title">DTS</h3>
+                <p class="step6">With the submission of the documentary requirements, issuance of <strong> DOE Clearance of No Pending Case </strong> and payment of required fees, the application shall be turned over to the assigned <strong>Processor Staff </strong>after logging.</p>
+                <h5 style=" margin-top: -60px;">RESPONSIBLE PERSON: EIMD</h5>
+                <h5 class="days" style="margin-top: -10px;">1 Day</h5>
+               
+            </div>
+
+            </div>
+
+            <div class="carousel-set">
+            <div class="carousel-item"  style= "height: 325px;"data-duration="33000">
+                <div class="flag"><h4 class="steps">Step 7</h4></div>  <h3 class="title">Processing of Application</h3>
+                
+               <p  class="step7"><strong>3. </strong>Upon submission of requirements, payment, and logging, the application is assigned to the <strong> Processor Staff.</strong>
+                <br> Assess completeness, format, validity, and compliance with <strong>DOE Circular DC2017-11-0011 </strong>and related standards.      
+               <br> <strong>4.b</strong> Register the application in the <strong>OIMS DOI Database. </strong>          
+               <br> <strong>4.c</strong> If compliant, prepare the <strong> Validation Form </strong>and <strong>Checklist of Requirements. </strong>           
+               <br> <strong>4.d </strong> If non-compliant, return to the applicant with reasons for rejection. </p>  
+                <h5 style=" margin-top: -50px;">RESPONSIBLE PERSON: EIMD</h5>
+                <h5 class="days" style="margin-top: -10px;">10 Days</h5>
+            </div>
+            </div>
+
+            <div class="carousel-set ">
+                <div class="carousel-item" style="height: 300px;" data-duration="18000">
+                   
+                    <div class="flag"><h4 class="steps">Step 8</h4></div>  <h3 class="title">Review and Endorsement</h3>
+                    
+                    <p class="step2"><strong>5.a</strong> The <strong>Chief SRS/Supervising SRS </strong>reviews the application and endorses the <strong> Certificate </strong> issuance, forwarding the validation form to the <strong> Director.</strong>
+
+                        <br> Insufficient applications are returned to the <strong> Assessor</strong> for applicant notification, while other documents go to the <strong> Assigned Staff</strong> for filing.</p> 
+                        <h5 style=" margin-top: -55px;">RESPONSIBLE PERSON: CARIDO, W. M.</h5> 
+                        <h5 class="days" style="margin-top: -10px;">5 Days</h5>
+
+                        </div>
+
+                        <div class="carousel-item" style="height: 250px;"data-duration="15000">
+                            <div class="flag"><h4 class="steps">Step 9</h4></div>  <h3 class="title">Approval of Application</h3>       
+
+                            <p class="step2" > <strong>6.a</strong> The <strong>Director</strong> approves the application on the <strong> Validation Form;</strong> disapproved applications are returned to the <strong> Chief SRS </strong> with reasons.
+                              <br> <strong>6.b</strong>Approved forms go back to the <strong>Assigned Staff.</strong> </p> 
+                              <h5 style=" margin-top: -65px;">RESPONSIBLE PERSON: DIR. SEVILLA R.</h5> 
+                              <h5 class="days" style="margin-top: -10px;">5 Days</h5>
+                        </div>
+            </div>
+                
+                
+
+
+        
+        <div class="carousel-set">
+           
+                <div class="carousel-item"   style="height: 205px;" data-duration="12000">
+                    <div class="flag"><h4 class="steps">Step 10</h4></div>  <h3 class="title">Generation of Certificates</h3> 
+    
+                    
+                    <p class="step2">Received the <strong>Validation Form </strong> for generation of electronically signed Letter to <strong> Applicant</strong> and <strong> Certificate.</strong></p>
+
+                    <h5 style=" margin-top: -55px;">RESPONSIBLE PERSON: EIMD</h5> 
+                    <h5 class="days" style="margin-top: -10px;">1 Day</h5>
+                </div>
+
+                <div class="carousel-item"  style="height: 175px" data-duration="12000">
+                    <div class="flag"><h4 class="steps">Step 11</h4></div>  <h3 class="title">Notification </h3>
+                    <p class="step2" >A notification shall be sent to the applicant with the applied <strong> Certificate </strong>attached.</p>
+
+                    <h5 style=" margin-top: -75px;">RESPONSIBLE PERSON: EIMD</h5> 
+                    
+                </div>
+
+        </div>
+    </div>
+    </div>
+    <script>
+        let currentSet = 0;
+        const sets = document.querySelectorAll('.carousel-set');
+
+
+        function fadeInItems(set) {
+            const items = set.querySelectorAll('.carousel-item');
+            timer = 0;
+            
+            items.forEach((item, index) => {
+                timer = timer + ( index > 0 ? Number(items[index-1].dataset.duration) : 0);
+                setTimeout(() => {
+                    item.classList.add('visible');
+
+                    if (index == items.length - 1) {
+                        setTimeout(showNextSet, Number(item.dataset.duration));
+                    }
+                }, (timer) );
+            });
+        }
+
+        function resetCarousel() {
+            sets.forEach(set => {
+                set.classList.remove('active');
+                set.querySelectorAll('.carousel-item').forEach(item => {
+                    item.classList.remove('visible');
+                });
+            });
+            currentSet = 0;
+            sets[currentSet].classList.add('active');
+            fadeInItems(sets[currentSet]);
+        }
+
+        function showNextSet() {
+            sets[currentSet].classList.remove('active');
+            currentSet++;
+            if (currentSet >= sets.length) {
+                resetCarousel();
+            } else {
+                sets[currentSet].classList.add('active');
+                fadeInItems(sets[currentSet]);
+            }
+        }
+        resetCarousel();
+    </script>
+</body>
+</html>

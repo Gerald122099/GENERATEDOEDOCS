@@ -2,7 +2,7 @@
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "inspection_db";
+$dbname = "itrf_db";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
