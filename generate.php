@@ -58,6 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
                 
             // Find the position of the last space within the first 57 characters
             $last_space_position = strrpos(substr($data['location'], 0, 57), ' ');
+            
 
             // If a space is found, split the string at the last space
              if ($last_space_position !== false) 
@@ -76,8 +77,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
             // Add a hyphen to the first part if it is split in the middle of a word
             if ($last_space_position === false || $last_space_position < 57) 
         {
-            $first_part .= '-';
-        }
+          
 
 
              $pdf->Cell($headercol1, $height, $first_part, $bordersize, 0);
@@ -86,6 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
             $pdf->SetXY($headerX , $headerY + $height * 4 + $headerXpadding ); 
             $second_sub_part = substr($second_part, 0,  60);
             $pdf->Cell($headercol1, $height, $second_sub_part, $bordersize, 0);
+        }
         } 
             else
         {
@@ -94,13 +95,36 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
              $pdf->Cell($headercol1 , $height , $data['location'], $bordersize, 0);     
         }
 
-        //if( $data['outlet_classif'] == )
-        $pdf->SetXY($headerX + 109.5 , $headerY + $height * 3 + $headerXpadding ); 
-        $pdf->Cell(11.5, $height   ,  $data['outlet_classification'],  $bordersize, 0 , );
-        $pdf->Cell(11.5, $height ,  $data['outlet_classification'],  $bordersize, 0);
-        $pdf->Cell(11.5, $height ,   $data['outlet_classification'],  $bordersize, 1);
+        //Outlet Classif
+        $pdf->SetFont('ZapfDingbats', '', 10.5);
 
+        // Define the outlet classifications and their corresponding X offsets
+        $outletClassifications = [
+            'COCO' => 0,   // X offset for COCO
+            'CODO' => 12,  // X offset for CODO
+            'DODO' => 23,  // X offset for DODO
+        ];
+        
+        $outletclassif = $data['outlet_classif'];
+        foreach ($outletClassifications as $classification => $xOffset) {
+            $xPosition = $headerX + 109.5 + $xOffset; 
+            $yPosition = $headerY + $height * 3 + $headerXpadding; 
+        
+            $pdf->SetXY($xPosition, $yPosition - 0.5);
+        
+            if ($outletclassif == $classification) {
+                $content = chr(51); 
+            } else {
+                $content = ''; 
+            }
+            $pdf->Cell(11.5, $height, $content, $bordersize, 0);
+        }
+
+    
+       
+        $pdf->SetFont('arialnarrow', '', 9);
         //5th row
+            
          $pdf->SetXY($headerX + 109.5 , $headerY + $height * 4 + $headerXpadding ); 
          $pdf->Cell($headercol2, $height,  $data['company'],  $bordersize, 0);
 
@@ -129,7 +153,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
             $pdf->SetFont('ZapfDingbats', '', 10.5);
 
             $YES = chr(51); // ✔ (Check mark)
-            $NO = chr(032) . chr(032) . chr(032) . chr(032) . chr(53); // ✘ (Cross mark)
+            $NO =  chr(53); // ✘ (Cross mark)
 
 
             
@@ -171,7 +195,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
             for ($i = 0; $i < count($arr_col1); $i++) {
                 $j = 9 + $i;
             
-                $pdf->SetXY($headerX + 46.5, $headerY - .5 + $height * ($j) + $headerXpadding);
+                $pdf->SetXY($headerX + 48, $headerY - .5 + $height * ($j) + $headerXpadding);
             
                 if ($arr_col1[$i] != null) {
                     $value1 = ($data_checklist[$arr_col1[$i]] ? $YES : $NO);
@@ -207,10 +231,10 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
            
             $permitcol=8;
             $pdf->SetTextColor(0, 0, 0); 
+            ($data['valid_permit_LGU'] || $data['valid_permit_BFP'] || $data['valid_permit_DENR'] ? 1 : 0);
             $pdf->SetXY($headerX +2, $headerY + $height * 10.7 + $headerXpadding ); 
             $pdf->Cell($permitcol-1, $height   ,  $YES,  $bordersize_cheklist, 0 , );
-            $pdf->Cell($permitcol, $height , $YES ,  $bordersize_cheklist, 0);
-            $pdf->Cell($permitcol, $height ,   $YES,  $bordersize_cheklist, 1);
+ 
 
 
 
@@ -344,7 +368,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
                 }
             }
             // With violation   
-            $x_add = ($allFieldsValid) ? 58 : 13;
+            $x_add = ($allFieldsValid) ? 13  :  -32;
 
             $pdf->SetXY($headerX2ndPage -109 - $x_add, $headerY2ndPage + 71 + $headerXpadding);
             $pdf->Cell($headercol1 - 105, $secondpageheight, $PRODUCT_YES, $secondpageborder, 0);
@@ -472,4 +496,5 @@ $pdf->Output();
         exit;
     }
 }
+
 ?>
