@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ITRF P1 Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container py-4">
+    <h2 class="text-center">Inspection / Investigation and Testing Report Form (ITRF)</h2>
+    <form id="itrfForm">
+        <div class="mb-3">
+            <label class="form-label">Business Name</label>
+            <input type="text" class="form-control" placeholder="Enter business name">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Dealer/Operator</label>
+            <input type="text" class="form-control" placeholder="Enter dealer/operator name">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Location</label>
+            <input type="text" class="form-control" placeholder="Enter location">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Outlet Classification</label>
+            <select class="form-select">
+                <option>COCO</option>
+                <option>CODO</option>
+                <option>DODO</option>
+            </select>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="convertToPDF()">Convert</button>
+    </form>
+
+    <script>
+        function convertToPDF() {
+            alert("PDF conversion functionality will be implemented here.");
+        }
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
