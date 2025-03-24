@@ -6,12 +6,11 @@ header('Content-Type: text/html; charset=utf-8');
 
 if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
     $itr_form_num = $_GET['id'];
-    $sql = "SELECT * FROM businessinfo WHERE itr_form_num ='$itr_form_num'";
-    $result = $conn->query($sql);
+    $sql_business_info = "SELECT * FROM businessinfo WHERE itr_form_num ='$itr_form_num'";
+    $result_business_info = $conn->query( $sql_business_info);
 
-
-    if ($result->num_rows > 0) {
-            $data = $result->fetch_assoc();
+    if ( $result_business_info->num_rows > 0) {
+            $data_business_info =  $result_business_info->fetch_assoc();
 
             $pdf = new FPDF('P', 'mm', 'Legal'); 
             $pdf->AddPage();
@@ -22,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
             $pdf->SetFont('arialnarrow', '', 9);
             
               //variables data
-            $data['outlet_classification'] = "X";
+            $data_business_info['outlet_classification'] = "X";
             $height = 3.2;
             $headerX= 49.5;
             $headerY= 34.5;
@@ -34,43 +33,43 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
             //1st row
             $pdf->SetTextColor(1,1,1);
             $pdf->SetXY($headerX + 97, $headerY + $height  + $headerXpadding - 15.5); 
-            $pdf->Cell( $headercol1 - 80, $height, $data['itr_form_num'] ,  $bordersize, 0);
+            $pdf->Cell( $headercol1 - 80, $height, $data_business_info['itr_form_num'] ,  $bordersize, 0);
 
             $pdf->SetXY($headerX , $headerY + $height * 1 + $headerXpadding ); 
-            $pdf->Cell( $headercol1, $height, $data['business_name'] ,  $bordersize, 0);
-            $pdf->Cell($headercol2, $height,  $data['date_time'],  $bordersize, 0);
+            $pdf->Cell( $headercol1, $height, $data_business_info['business_name'] ,  $bordersize, 0);
+            $pdf->Cell($headercol2, $height,  $data_business_info['date_time'],  $bordersize, 0);
 
             //2nd row
             $pdf->SetXY($headerX , $headerY + $height * 2 + $headerXpadding ); 
-            $pdf->Cell( $headercol1, $height, $data['dealer_operator'] ,  $bordersize, 0);
-            $pdf->Cell($headercol2, $height,  $data['sa_no'],  $bordersize, 0);
+            $pdf->Cell( $headercol1, $height, $data_business_info['dealer_operator'] ,  $bordersize, 0);
+            $pdf->Cell($headercol2, $height,  $data_business_info['sa_no'],  $bordersize, 0);
 
             //3rd row
             $pdf->SetXY($headerX , $headerY + $height * 6 + $headerXpadding ); 
-            $pdf->Cell( $headercol1, $height, $data['designation'] ,  $bordersize, 0);
-             $pdf->Cell($headercol2, $height,  $data['email_add'],  $bordersize, 0);
+            $pdf->Cell( $headercol1, $height, $data_business_info['designation'] ,  $bordersize, 0);
+             $pdf->Cell($headercol2, $height,  $data_business_info['email_add'],  $bordersize, 0);
              
             //4th row
             $pdf->SetXY($headerX , $headerY + $height * 3 + $headerXpadding ); 
-            $strlength = strlen($data['location']);
+            $strlength = strlen($data_business_info['location']);
             //conditional if greater than 57
             if ($strlength > 57) {
                 
             // Find the position of the last space within the first 57 characters
-            $last_space_position = strrpos(substr($data['location'], 0, 57), ' ');
+            $last_space_position = strrpos(substr($data_business_info['location'], 0, 57), ' ');
             
 
             // If a space is found, split the string at the last space
              if ($last_space_position !== false) 
                 {
-            $first_part = substr($data['location'], 0, $last_space_position);
-            $second_part = substr($data['location'], $last_space_position + 1);
+            $first_part = substr($data_business_info['location'], 0, $last_space_position);
+            $second_part = substr($data_business_info['location'], $last_space_position + 1);
         } 
              else
         {
             // If no space is found, split the string at the 57th character
-             $first_part = substr($data['location'], 0, 57);
-             $second_part = substr($data['location'],0, 57);
+             $first_part = substr($data_business_info['location'], 0, 57);
+             $second_part = substr($data_business_info['location'],0, 57);
              
         }
 
@@ -92,20 +91,18 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
         {
              
             
-             $pdf->Cell($headercol1 , $height , $data['location'], $bordersize, 0);     
+             $pdf->Cell($headercol1 , $height ,$data_business_info['location'], $bordersize, 0);     
         }
 
         //Outlet Classif
         $pdf->SetFont('ZapfDingbats', '', 10.5);
-
-        // Define the outlet classifications and their corresponding X offsets
         $outletClassifications = [
-            'COCO' => 0,   // X offset for COCO
-            'CODO' => 12,  // X offset for CODO
-            'DODO' => 23,  // X offset for DODO
+            'COCO' => 0,  
+            'CODO' => 12,  
+            'DODO' => 23,  
         ];
         
-        $outletclassif = $data['outlet_classif'];
+        $outletclassif = $data_business_info['outlet_classif'];
         foreach ($outletClassifications as $classification => $xOffset) {
             $xPosition = $headerX + 109.5 + $xOffset; 
             $yPosition = $headerY + $height * 3 + $headerXpadding; 
@@ -120,24 +117,23 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
             $pdf->Cell(11.5, $height, $content, $bordersize, 0);
         }
 
-    
        
         $pdf->SetFont('arialnarrow', '', 9);
         //5th row
             
          $pdf->SetXY($headerX + 109.5 , $headerY + $height * 4 + $headerXpadding ); 
-         $pdf->Cell($headercol2, $height,  $data['company'],  $bordersize, 0);
+         $pdf->Cell($headercol2, $height,  $data_business_info['company'],  $bordersize, 0);
 
         //6th row
          $pdf->SetXY($headerX , $headerY + $height * 5 + $headerXpadding ); 
-         $pdf->Cell( $headercol1, $height, $data['in_charge'] ,  $bordersize, 0);
-         $pdf->Cell($headercol2, $height,  $data['contact_tel'],  $bordersize, 0);
+         $pdf->Cell( $headercol1, $height, $data_business_info['in_charge'] ,  $bordersize, 0);
+         $pdf->Cell($headercol2, $height,  $data_business_info['contact_tel'],  $bordersize, 0);
 
 
 
 
          //Standard Compliance Checklist--------------------------------->
-            $colchecklist1 = 88;
+            $colchecklist1 = 88.5;
             $colchecklist2 = 10;
             $bordersize_cheklist =0;
             $sql_chekclist = "SELECT * FROM standardcompliancechecklist WHERE itr_form_num ='$itr_form_num'";
@@ -155,17 +151,6 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
             $YES = chr(51); // ✔ (Check mark)
             $NO =  chr(53); // ✘ (Cross mark)
 
-
-            
-
-              $valid_permits = [
-                'valid_permit_LGU',
-
-                'valid_permit_BFP',
-
-                'valid_permit_DENR'
-              ];
-
              $arr_col1 = [
                 'coc_certificate','coc_posted','valid_permits','appropriate_test','week_calib','outlet_identify','price_display','pdb_entry','pdb_updated', 'pdb_match','ron_label',
                 'e10_label','biofuels', 'consumer_safety','no_cel_warn', 'no_smoke_sign', 'switch_eng','no_straddle', 'non_post_unleaded', 'non_post_biodiesel','issue_receipt','non_refuse_inspect',
@@ -176,21 +161,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
              $arr_col2 = [
                'pump_island', 'lane_oriented_pump', null,  'pump_guard','m_ingress','m_edge','office_cashier','min_canopy','boundary_walls', 'master_switch',  'clean_rest','underground_storage',
                 null, 'm_distance', 'vent','transfer_dispense', 'no_drum', 'no_hoard',
-                null,
-
-                'free_tire_press',
-
-                'free_water',
-
-                'basic_mechanical',
-
-                'first_aid',
-
-                'design_eval',
-
-                'electric_eval'
-                
-            ];
+                null, 'free_tire_press', 'free_water', 'basic_mechanical', 'first_aid','design_eval','electric_eval'];
             
             for ($i = 0; $i < count($arr_col1); $i++) {
                 $j = 9 + $i;
@@ -205,7 +176,9 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
                     } else {
                         $pdf->SetTextColor(0, 0, 0); 
                     }
-                } else {
+
+                } 
+                else {
                     $value1 = "";
                 }
                 $pdf->Cell($colchecklist1, $height, $value1, $bordersize_cheklist, 0);
@@ -223,20 +196,42 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
             
                 $pdf->Cell($colchecklist2, $height, $value, $bordersize_cheklist, 0);
             }
+            
+
+           $valid_permits = [
+              'valid_permit_LGU',
+                'valid_permit_BFP',
+               'valid_permit_DENR'
+           ];
+               
+            $permitcol = 7;
+           $pdf->SetFont('ZapfDingbats','',9.5);
+            $permit_yes =(chr(51)); // ✔ (Check mark)
+           $permit_no = (chr(53)); // ✘ (Cross mark)
+        
+
+           for ($i=0; $i<3; $i++){
+            $h= 1.5+ ($i*7) ;
+            $pdf->SetXY($headerX + $h, $headerY + $height * 10.8 + $headerXpadding); 
+
+            if($data_checklist[$valid_permits[$i]] == 1) {  
+                $pdf->Cell($permitcol, $height, $permit_yes, 1, 0);
+            }
+            else{
+                $pdf->Cell($permitcol, $height, $permit_no, 1, 0);
+            }
+           }
 
 
-            $sql_prod_quality = "SELECT id, duplicate_samples FROM productqualitycont WHERE itr_form_num ='$itr_form_num'";
-            $result_prod_quality = $conn->query($sql_prod_quality);
-            $data_product_quality = $result_prod_quality->fetch_assoc();
+        
+           // if($permits == 1){
+            //    $pdf->SetXY($headerX + 2, $headerY + $height * 10.7 + $headerXpadding); 
+            //    $pdf->Cell($permitcol - 1, $height, $permit_yes, $bordersize_checklist, 1);
+              //  }
+            //    $pdf->SetXY($headerX + 2, $headerY + $height * 10.7 + $headerXpadding); 
+                //$pdf->Cell($permitcol - 1, $height, $permit_no, $bordersize_checklist, 1);
+     
            
-            $permitcol=8;
-            $pdf->SetTextColor(0, 0, 0); 
-            ($data['valid_permit_LGU'] || $data['valid_permit_BFP'] || $data['valid_permit_DENR'] ? 1 : 0);
-            $pdf->SetXY($headerX +2, $headerY + $height * 10.7 + $headerXpadding ); 
-            $pdf->Cell($permitcol-1, $height   ,  $YES,  $bordersize_cheklist, 0 , );
- 
-
-
 
 
           //Second Page-------------------------------------------------------------------------------------// 
@@ -271,9 +266,9 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
                 $pdf->SetXY($headerX2ndPage, $headerY2ndPage + 22 + $secondpageheight * $i + $headerXpadding);
                 $pdf->Cell($headercol_sampling + 23, $secondpageheight, $data_sampling['code_value'], $secondpageborder, 0);
                 $pdf->Cell($headercol_sampling + 8, $secondpageheight, $data_sampling['product'], $secondpageborder, 0);
-                $pdf->Cell($headercol_sampling + 4.5, $secondpageheight, $data_sampling['ron_value'], $secondpageborder, 0);
-                $pdf->Cell($headercol_sampling + 7, $secondpageheight, $data_sampling['UGT'], $secondpageborder, 0);
-                $pdf->Cell($headercol_sampling + 9, $secondpageheight, $data_sampling['pump'], $secondpageborder, 0);
+                $pdf->Cell($headercol_sampling + 4.5, $secondpageheight, $data_sampling['ron_value'], $secondpageborder, 0, 'C');
+                $pdf->Cell($headercol_sampling + 7, $secondpageheight, $data_sampling['UGT'], $secondpageborder, 0, 'C');
+                $pdf->Cell($headercol_sampling + 9, $secondpageheight, $data_sampling['pump'], $secondpageborder, 0,'C');
             
                 $i++; }
             
@@ -442,7 +437,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
             $violation_headerX = 16;
             $violation_cell_width = 85;
             $violation_heightcell = 3.9;
-            $violation_border = 1;
+            $violation_border = 0;
             $maxLength_violation = 200;    
             
             $concatenated_remarks = '';
