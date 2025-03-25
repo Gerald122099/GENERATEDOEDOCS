@@ -349,16 +349,22 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
             $PRODUCT_YES = chr(51); // ✔ (Check mark)
             $PRODUCT_NO = chr(032); // Blank
             // Boolean fields array
-            $booleanFields_Compliance = [ 'coc_certificate', 'coc_posted','valid_permit_LGU','valid_permit_BFP','valid_permit_DENR','appropriate_test','week_calib',  'outlet_identify','price_display','pdb_entry','pdb_updated','pdb_match',
-                'ron_label','e10_label', 'biofuels','consumer_safety','no_cel_warn','no_smoke_sign','switch_eng', 'no_straddle','non_post_unleaded','non_post_biodiesel','issue_receipt',
-                'non_refuse_inspect', 'fixed_dispense', 'no_open_flame', 'max_length_dispense', 'peso_display', 'pump_island','lane_oriented_pump','pump_guard','m_ingress','m_edge',
-                'office_cashier','min_canopy','boundary_walls','master_switch','clean_rest','underground_storage','m_distance', 'vent','transfer_dispense','no_drum','no_hoard',
-                'free_tire_press','free_water','basic_mechanical','first_aid','design_eval','electric_eval','under_deliver'
+            $booleanFields_Compliance = [ 'coc_certificate', 'coc_posted', 'valid_permit_LGU', 'valid_permit_BFP', 'valid_permit_DENR', 
+            'appropriate_test', 'week_calib', 'outlet_identify', 'price_display', 'pdb_entry', 
+            'pdb_updated', 'pdb_match', 'ron_label', 'e10_label', 'biofuels', 'consumer_safety', 
+            'no_cel_warn', 'no_smoke_sign', 'switch_eng', 'no_straddle', 'non_post_unleaded', 
+            'non_post_biodiesel', 'issue_receipt', 'non_refuse_inspect', 'fixed_dispense', 
+            'no_open_flame', 'max_length_dispense', 'peso_display', 'pump_island', 
+            'lane_oriented_pump', 'pump_guard', 'm_ingress', 'm_edge', 'office_cashier', 
+            'min_canopy', 'boundary_walls', 'master_switch', 'clean_rest', 'underground_storage', 
+            'm_distance', 'vent', 'transfer_dispense', 'no_drum', 'no_hoard', 'free_tire_press', 
+            'free_water', 'basic_mechanical', 'first_aid', 'design_eval', 'electric_eval', 
+            'under_deliver'
             ];
-            $allFieldsValid = true;
+            $allFieldsValid = 1;
             foreach ($booleanFields_Compliance as $field) {
-                if ($row[$field] == 0) { // Assuming $row contains the database row
-                    $allFieldsValid = false;
+                if (!isset ($row[$field]) ||  $row[$field] == 0) { // Assuming $row contains the database row
+                    $allFieldsValid = 0;
                     break;
                 }
             }

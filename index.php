@@ -10,315 +10,286 @@
     <link rel="stylesheet" href="itrcss.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
    <style>
-      body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
+
+* {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 10px;
+            background-color: gray;
+            border-radius:18px;
+            color:black;
+            justify-content: center;
+            height: auto;
+            place-items: center;
+
+            
+        }
+        
+        .header {
+            background-image: url('/generateDOEdocs/header.jpg');
+            background-size: cover;
+            background-position: center;
+            height: 150px;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        
+        h5 {
+            text-align: center;
+            margin: 15px 0;
+            font-size: 1.2rem;
+            color: #333;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -10px;
+        }
+        
+        .divcol3, .divcol4, .divcol5, .divcol6 {
+            padding: 0 10px;
+            width: 100%;
+        
+        }
+        .divcol1{
+         padding: 0 10px;
+         width:100%;   
+        }
+
+        .divcol2{
+            padding: 0 10px;
+            width:500px;
+            border-style:solid;
+            color:black;
+            
+           
+            
+        }
+        .form-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .mb-3 {
+            margin-bottom: 15px;
+            clear: both;
+        }
+        
+         .form-label-mandatory, .label-remarks, .label-supplier, .label-sampling {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+           
+        }
+       
+        .form-label-mandatory {
+            color: #d9534f;
+        }
+        
+        .form-control, .form-control-mandatory, .form-control-supplier, .form-control-sampling, .form-select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            
+        }
+        
+        .form-check-input {
+            margin-right: 10px;
+        }
+        
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .sampling-section {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .sampling-row {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+        
+        .form-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    width: 100%;
   }
 
-  .container {
+  .form-column {
+    flex: 1;
+    min-width: 300px;
+  }
+
+  .form-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .form-label {
+    width: 150px;
+    margin-right: 10px;
+    text-align: left;
+  }
+
+  .form-control, .form-select {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+
+
+  @media (max-width: 768px) {
+    .form-group {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .form-label {
       width: 100%;
-      height:8000px;
-      margin: 0 auto;
-      border: 2px solid #ffffff;       
-      border-radius:10;
-      padding: 10px;
-      background-color:rgb(245, 249, 249);
-
+      text-align: left;
+      margin-bottom: 5px;
+    }
     
- 
-   
-}
-.divcol1{
-  width: 50%;
-  height: 350px; 
-    padding: 10px;
-  float: left;
-}
-.divcol2{
-  width: 50%;
-    padding: 10px;
-  height: 350px;
-  float: right;
-}
-
-  .divcol3{
-    width: 50%;
-    padding: 10px;
-    float:left;
-}
-.divcol4{
-    width: 50%;
-    height: 2480px;
-    padding: 10px;
-    float:right;
-  
- 
-  
-}
-.divcol5{
-    width: 50%;
-    border: 2px solid #071952;
-    border-radius:10px;
-    padding: 10px;
-    border-style: solid ;
-    color: red;
-    float:left;
-
-   
-  
-}
-.divcol6{
-    width: 50%;
-    border: 2px solid #071952;
-    border-radius:10px;
-    padding: 10px;
-    border-style: solid ;
-    color: red;
-    float:right;
-    
-}
-.header {
-    text-align: center;
-    padding: 10pxpx;
-    background-color: #ffffff;
-    border: 2px solid #ffffff;
-    margin-bottom: 10px;
-    border-radius: 10px;
-    
-}
-
-.nav {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-}
-
-    
-
-.mb-3 {
-    margin-bottom: 1rem; 
-    text-align: left;
-    background-color:#eeeeee;
-     padding:15px;
-     
-
-}
-.col1 {
-   width: 400px;
-   margin-bottom: 1rem; 
-   text-align: left;
-}
-.col2 {
-   width: 400px;
-   margin-bottom: 1rem; 
-   text-align: left;
-}
-
-
-.mandatorytitle{
-  width: 100%;
-
-  padding: 1rem 1rem;
-  text-align: center;
-  float:right;
-  height:50px;
-  
-}
-h5{
-  text-align:center;
- 
- 
-  font-size: 18px;
-
-}
-.form-group {
-    display: flex;
-    align-items: left; /* Vertically centers the label and input */
-    margin-bottom: 1rem; /* Add margin-bottom to increase spacing */
-}
-
-.form-label {
-    margin-right: 10px; 
-    width: 35%;
-    text-align: left;
-  
-
-}
-.form-label-mandatory{
-  margin-right: 10px; 
-    width: 80%;
-    text-align: left;
- 
-
-}
-
-.form-control {
-  flex: 1; /* Allows the input to take up remaining space */
-    padding: 0.375rem 0.75rem;
-    font-size: 1rem;
-    line-height: 1.5;
-   
-    width: 60%;
-    float:right;
-    
- 
-}
-
-.label-remarks{
-
-  margin-right: 10px; 
-    width: 20%;
-    text-align: left;
-  
-}
-
-
-.label-supplier{
-
-margin-right: 10px; 
-  width: 30%;
-  text-align: left;
- 
-}
-.form-control-mandatory {
-  flex: 1; /* Allows the input to take up remaining space */
-    padding: 0.375rem 0.75rem;
-    font-size: 1rem;
-    line-height: 1.5;
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
-    width: 75%;
-    float:right;
-}
- 
-    .form-control-supplier {
-  flex: 1; /* Allows the input to take up remaining space */
-    padding: 0.375rem 0.75rem;
-    font-size: 1rem;
-    line-height: 1.5;
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
-    width: 65%;
-   
- 
-}
-.label-sampling{
-
-margin-right: 5px; 
-  width: 100%;
-  text-align: left;
-  border-style: solid;
-  color: blue;
-}
-.form-control-sampling {
-  flex: 1; /* Allows the input to take up remaining space */
-    padding: 0.375rem 0.75rem;
-    font-size: 1rem;
-    line-height: 1.5;
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
-    width: 33%;
-}
-.sampling-section {
-    display: none; /* Hide sampling section by default */
+    .form-control, .form-select {
+      width: 100%;
+    }
   }
-
-  .form-check-input{
-       border: 1px solid rgb(0, 0, 0);
-    border-radius: 0.25rem;
-
-  }
+ 
     </style>
+
 </head>
+<body>
 <body>
     <div class="container" >
         <!-- Header -->
-        <div class="header" style="background-image: url('/generateDOEdocs/header.jpg'); background-size: cover; background-position: center; height: 200px;">
-</div>
+      <header><img src="header.jpg" alt="headerdoe" width="100%" height="auto" style= "border-radius:15px" > </header>
 <div style="text-align:center; ">
 <h5>Business Information</h5>
 </div>
  <div class= "divcol1">
     <form action="insert.php" method="POST">
-      <!-- ITR Form Number -->
-      <div class="col1"  >
-        <label for="itr_form_num" class="form-label">ITR Form Number</label>
-        <input style= "width: 60%;"type="text" class="form-control" id="itr_form_num" name="itr_form_num" required>
-      </div>
+    <div class="form-container">
+  <div class="form-column">
+    <!-- ITR Form Number -->
+    <div class="form-group">
+      <label for="itr_form_num" class="form-label">ITR Form Number</label>
+      <input type="text" class="form-control" id="itr_form_num" name="itr_form_num" required>
+    </div>
 
-      <!-- Business Name -->
-      <div class="col1">
-        <label for="business_name" class="form-label">Business Name</label>
-        <input type="text" class="form-control" id="business_name" name="business_name">
-      </div>
+    <!-- Business Name -->
+    <div class="form-group">
+      <label for="business_name" class="form-label">Business Name </label>
+      <input type="text" class="form-control" id="business_name" name="business_name">
+    </div>
 
-      <!-- Dealer/Operator -->
-      <div class="col1">
-        <label for="dealer_operator" class="form-label">Dealer/Operator</label>
-        <input type="text" class="form-control" id="dealer_operator" name="dealer_operator">
-      </div>
+    <!-- Dealer/Operator -->
+    <div class="form-group">
+      <label for="dealer_operator" class="form-label">Dealer/Operator</label>
+      <input type="text" class="form-control" id="dealer_operator" name="dealer_operator">
+    </div>
 
-      <!-- Location -->
-      <div class="col1">
-        <label for="location" class="form-label">Location</label>
-        <input type="text" class="form-control" id="location" name="location">
-      </div>
+    <!-- Location -->
+    <div class="form-group">
+      <label for="location" class="form-label">Location</label>
+      <input type="text" class="form-control" id="location" name="location">
+    </div>
 
-      <!-- In Charge -->
-      <div class="col1">
-        <label for="in_charge" class="form-label">In Charge</label>
-        <input type="text" class="form-control" id="in_charge" name="in_charge">
-      </div>
+    <!-- In Charge -->
+    <div class="form-group">
+      <label for="in_charge" class="form-label">In Charge</label>
+      <input type="text" class="form-control" id="in_charge" name="in_charge">
+    </div>
 
-      <!-- Designation -->
-      <div class="col1">
-        <label for="designation" class="form-label">Designation</label>
-        <input type="text" class="form-control" id="designation" name="designation">
-      </div>
+    <!-- Designation -->
+    <div class="form-group">
+      <label for="designation" class="form-label">Designation</label>
+      <input type="text" class="form-control" id="designation" name="designation">
+    </div>
+  </div>
 
+  <div class="form-column">
+    <!-- SA Number -->
+    <div class="form-group">
+      <label for="sa_no" class="form-label">SA Number</label>
+      <input type="number" class="form-control" id="sa_no" name="sa_no">
+    </div>
+
+    <!-- SA Date -->
+    <div class="form-group">
+      <label for="sa_date" class="form-label">SA Date</label>
+      <input type="date" class="form-control" id="sa_date" name="sa_date">
+    </div>
+
+    <!-- Outlet Classification -->
+    <div class="form-group">
+      <label for="outlet_classif" class="form-label">Outlet Classification</label>
+      <select class="form-select" id="outlet_classif" name="outlet_classif">
+        <option value="COCO">COCO</option>
+        <option value="CODO">CODO</option>
+        <option value="DODO">DODO</option>
+      </select>
+    </div>
+
+    <!-- Company -->
+    <div class="form-group">
+      <label for="company" class="form-label">Company</label>
+      <input type="text" class="form-control" id="company" name="company">
+    </div>
+
+    <!-- Contact Telephone -->
+    <div class="form-group">
+      <label for="contact_tel" class="form-label">Contact Telephone</label>
+      <input type="number" class="form-control" id="contact_tel" name="contact_tel">
+    </div>
+
+    <!-- Email Address -->
+    <div class="form-group">
+      <label for="email_add" class="form-label">Email Address</label>
+      <input type="email" class="form-control" id="email_add" name="email_add">
+    </div>
+  </div>
 </div>
-
-<div class= "divcol2">
-      <!-- SA Number -->
-      <div class="col2">
-        <label for="sa_no" class="form-label">SA Number</label>
-        <input type="number" class="form-control" id="sa_no" name="sa_no">
-      </div>
-
-      <!-- SA Date -->
-      <div class="col2">
-        <label for="sa_date" class="form-label">SA Date</label>
-        <input type="date" class="form-control" id="sa_date" name="sa_date">
-      </div>
-
-      <!-- Outlet Classification -->
-      <div class="col2">
-        <label for="outlet_classif" class="form-label">Outlet Classification</label>
-        <select style="width:60%; float:right;" class="form-select" id="outlet_classif" name="outlet_classif">
-          <option value="COCO">COCO</option>
-          <option value="CODO">CODO</option>
-          <option value="DODO">DODO</option>
-        </select>
-      </div>
-
-      <!-- Company -->
-      <div class="col2">
-        <label for="company" class="form-label">Company</label>
-        <input type="text" class="form-control" id="company" name="company">
-      </div>
-
-      <!-- Contact Telephone -->
-      <div class="col2">
-        <label for="contact_tel" class="form-label">Contact Telephone</label>
-        <input type="number" class="form-control" id="contact_tel" name="contact_tel">
-      </div>
-
-      <!-- Email Address -->
-      <div class="col2">
-        <label for="email_add" class="form-label">Email Address</label>
-        <input type="email" class="form-control" id="email_add" name="email_add">
-      </div>
+      
 </div>
 <div class="mandatorytitle" >
   <h5>MANDATORY AND MINIMUM STANDARDS & REQUIREMENTS</h5>
@@ -509,9 +480,8 @@ margin-right: 5px;
           <input type="checkbox" class="form-check-input" id="peso_display" name="peso_display" value="1">
         </div>
       
-      </div>
 
-</div>
+
 
 
 <div class="divcol4">
@@ -621,6 +591,7 @@ margin-right: 5px;
           <label for="no_hoard" class="form-label-mandatory">t.1 No Hoarding</label>
           <input type="checkbox" class="form-check-input" id="no_hoard" name="no_hoard" value="1">
         </div>
+</div>
   
 
       <!-- Free Services Section -->
@@ -665,6 +636,7 @@ margin-right: 5px;
 
       </div>
       </div>
+</div>
 
 
       <div class="divcol5">
