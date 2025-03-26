@@ -9,16 +9,20 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="itrcss.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
    <style>
 
 * {
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            font-family: "Poppins", sans-serif;
         }
         
         body {
             margin: 0;
-            padding: 0;
+            padding: 10px;
             line-height: 1.6;
         }
         
@@ -26,13 +30,15 @@
             width: 100%;
             max-width: 1000px;
             margin: 0 auto;
-            padding: 10px;
-            background-color: gray;
+            padding: 20px;
+            background-color: #fcfcfc;
             border-radius:18px;
             color:black;
             justify-content: center;
             height: auto;
             place-items: center;
+            border-style: solid;
+            border-color:rgb(233, 238, 255);
 
             
         }
@@ -59,7 +65,7 @@
             margin: 0 -10px;
         }
         
-        .divcol3, .divcol4, .divcol5, .divcol6 {
+        .div-form-checklist{
             padding: 0 10px;
             width: 100%;
         
@@ -84,6 +90,9 @@
             background: #f9f9f9;
             border-radius: 5px;
             border: 1px solid #ddd;
+            width:80%;
+            margin: 15px auto;
+            
         }
         
         .mb-3 {
@@ -94,25 +103,49 @@
          .form-label-mandatory, .label-remarks, .label-supplier, .label-sampling {
             display: block;
             margin-bottom: 5px;
-            font-weight: bold;
+            font-family: "Poppins", sans-serif;
+            font-weight: 650;
+            font-style: normal;
+           
+            float:left;  
+           
+            font-size: 16px;
+
            
         }
        
         .form-label-mandatory {
-            color: #d9534f;
+            color:rgb(61, 56, 96);
+            float:left;  
+            width: 70%;
         }
         
-        .form-control, .form-control-mandatory, .form-control-supplier, .form-control-sampling, .form-select {
-            width: 100%;
+        .form-control, .form-control-mandatory, .form-control-sampling, .form-select {
+            width: 80%;
             padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
             font-size: 14px;
-            
+            border: none;
+            border-bottom: 1px solid gray;
+            background: #f9f9f9;
         }
-        
+        .form-control-supplier{
+          width: 60%;
+            padding: 8px;
+            font-size: 14px;
+            border: none;
+            border-bottom: 1px solid gray;
+            background: #f9f9f9;
+
+        }
         .form-check-input {
-            margin-right: 10px;
+            border-style: solid;
+            border-color:rgb(0, 35, 151);
+            position:relative;
+            left: 20px;
+            height:25px;
+            width: 25px;
+          
+
         }
         
         .btn {
@@ -125,12 +158,12 @@
         }
         
         .btn-primary {
-            background-color: #007bff;
+            background-color: #001f88;
             color: white;
         }
         
         .btn-secondary {
-            background-color: #6c757d;
+          background-color: #12ad00;
             color: white;
         }
         
@@ -294,7 +327,7 @@
 <div class="mandatorytitle" >
   <h5>MANDATORY AND MINIMUM STANDARDS & REQUIREMENTS</h5>
 </div>
-<div class="divcol3">
+<div class="div-form-checklist">
        <!-- COC Certificate Section -->
        <div class="form-section">
         <div class="mb-3" >
@@ -316,16 +349,16 @@
         <div class="mb-3">
           <label for="valid_permits" class="form-label-mandatory">b. Valid Permits:</label>
         </div>
-        <div class="mb-3" style="float:left;">
-          <label for="valid_permit_LGU" style= "width:110px;"class="form-label-mandatory">Valid Permit LGU</label>
+        <div class="mb-3" >
+          <label for="valid_permit_LGU" class="form-label-mandatory">Valid Permit LGU</label>
           <input type="checkbox"  class="form-check-input" id="valid_permit_LGU" name="valid_permit_LGU" value="1">
       </div>
-        <div class="mb-3" style="float:left;">
-          <label for="valid_permit_BFP" style= "width:110px;" class="form-label-mandatory">Valid Permit BFP</label>
+        <div class="mb-3" >
+          <label for="valid_permit_BFP"  class="form-label-mandatory">Valid Permit BFP</label>
           <input type="checkbox" class="form-check-input" id="valid_permit_BFP" name="valid_permit_BFP" value="1">
         </div>
         <div class="mb-3" >
-          <label for="valid_permit_DENR" style= "width:110px;" class="form-label-mandatory">Valid Permit DENR</label>
+          <label for="valid_permit_DENR"  class="form-label-mandatory">Valid Permit DENR</label>
           <input type="checkbox" class="form-check-input" id="valid_permit_DENR" name="valid_permit_DENR" value="1">
         </div>
         <div class="mb-3" >
@@ -479,12 +512,12 @@
           <label for="peso_display" class="form-label-mandatory">o.4 Volume-Peso amount display up to two decimal places</label>
           <input type="checkbox" class="form-check-input" id="peso_display" name="peso_display" value="1">
         </div>
-      
+</div>
 
 
 
 
-<div class="divcol4">
+
 
       <!-- Pump and Infrastructure Section -->
       <div class="form-section">
@@ -592,7 +625,7 @@
           <input type="checkbox" class="form-check-input" id="no_hoard" name="no_hoard" value="1">
         </div>
 </div>
-  
+
 
       <!-- Free Services Section -->
       <div class="form-section">
@@ -634,49 +667,42 @@
        
 </div>
 
-      </div>
-      </div>
-</div>
+  
+    
 
 
-      <div class="divcol5">
+      
       <div class="form-section">
         <div class="mb-3">
-        <label for="receipt_invoice" class="label-supplier">Receipt Invoice:</label>
+        <label for="receipt_invoice" style="width:30%" class="label-supplier">Receipt Invoice:</label>
         <input type="text" id="receipt_invoice" class="form-control-supplier" name="receipt_invoice" required><br>
         </div>
         <div class="mb-3">
-        <label for="supplier" class="label-supplier" >Supplier:</label>
+        <label for="supplier" style="width:30%" class="label-supplier" >Supplier:</label>
         <input type="text" id="supplier" class="form-control-supplier" name="supplier" required><br>
         </div>
         <div class="mb-3">
-        <label for="date_delivery" class="label-supplier">Date of Delivery:</label>
+        <label for="date_delivery" style="width:30%" class="label-supplier">Date of Delivery:</label>
         <input type="text" id="date_delivery" class="form-control-supplier" name="date_delivery" required><br>
         </div>
         <div class="mb-3">
-        <label for="address" class="label-supplier">Address:</label>
+        <label for="address" style="width:30%" class="label-supplier">Address:</label>
         <input type="text" id="address"class="form-control-supplier" name="address" required><br>
         </div>
         <div class="mb-3">
-        <label for="contact_number" class="label-supplier">Contact Number:</label>
+        <label for="contact_number" style="width:30%" class="label-supplier">Contact Number:</label>
         <input type="text" id="contact_number" class="form-control-supplier"name="contact_number" required>
         </div>
           <!-- Submit Button -->
       <button type="submit" class="btn btn-primary">Submit</button>
       </div>
 
-      
-
-</div>
-
-
- <div class="divcol6">
-
+      <div class="form-section">
         <!-- Sampling -->
-      <div class="mb-3 form-check">
-        <input type="checkbox" class="form-check-input" id="sampling" name="sampling" value="1">
-        <label class="form-check-label" for="sampling">Sampling</label>
-      </div>
+        <label style="float:left" class="label-supplier" for="sampling">Sampling</label>
+        <input  type="checkbox" class="form-check-input" id="sampling" name="sampling" value="1">
+       
+      
       
 
 
@@ -713,12 +739,10 @@
         <!-- Add Row Button -->
         <button type="button" id="addRow" class="btn btn-secondary mb-3">Add Row</button>
       </div>
-      
-</div> 
      
     </form>
 
-    
+</div>
 
     <script>
     document.addEventListener('DOMContentLoaded', function () {
