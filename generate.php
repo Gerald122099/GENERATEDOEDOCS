@@ -42,7 +42,8 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
             //2nd row
             $pdf->SetXY($headerX , $headerY + $height * 2 + $headerXpadding ); 
             $pdf->Cell( $headercol1, $height, $data_business_info['dealer_operator'] ,  $bordersize, 0);
-            $pdf->Cell($headercol2, $height,  $data_business_info['sa_no'],  $bordersize, 0);
+            $combinedSA = $data_business_info['sa_no'] . '/' .  $data_business_info['sa_date'];
+            $pdf->Cell($headercol2, $height,  $combinedSA,  $bordersize, 0);
 
             //3rd row
             $pdf->SetXY($headerX , $headerY + $height * 6 + $headerXpadding ); 
@@ -102,7 +103,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
             'DODO' => 23,  
         ];
         
-        $outletclassif = $data_business_info['outlet_classif'];
+        $outletclassif = $data_business_info['outlet_class'];
         foreach ($outletClassifications as $classification => $xOffset) {
             $xPosition = $headerX + 109.5 + $xOffset; 
             $yPosition = $headerY + $height * 3 + $headerXpadding; 
@@ -152,16 +153,63 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
             $NO =  chr(53); // ✘ (Cross mark)
 
              $arr_col1 = [
-                'coc_certificate','coc_posted','valid_permits','appropriate_test','week_calib','outlet_identify','price_display','pdb_entry','pdb_updated', 'pdb_match','ron_label',
-                'e10_label','biofuels', 'consumer_safety','no_cel_warn', 'no_smoke_sign', 'switch_eng','no_straddle', 'non_post_unleaded', 'non_post_biodiesel','issue_receipt','non_refuse_inspect',
-                'fixed_dispense',null,'no_open_flame','max_length_dispense','peso_display'      
+                'coc_cert',
+                'coc_posted',
+                'appropriate_test',
+                'valid_permits',
+                'week_calib',
+                'outlet_identify',
+                'price_display',
+                'pdb_entry',
+                'pdb_updated',
+                'pdb_match',
+                'ron_label',
+                'e10_label',
+                'biofuels',
+                'consume_safety',
+                'cel_warn',
+                'smoke_sign',
+                'switch_eng',
+                'straddle',
+                'post_unleaded',
+                'post_biodiesel',
+                'issue_receipt',
+                'non_refuse_inspect',
+                'fixed_dispense',
+                 null,
+                'no_open_flame',
+                'max_length_dispense',
+                'peso_display'     
                 
             ];
 
              $arr_col2 = [
-               'pump_island', 'lane_oriented_pump', null,  'pump_guard','m_ingress','m_edge','office_cashier','min_canopy','boundary_walls', 'master_switch',  'clean_rest','underground_storage',
-                null, 'm_distance', 'vent','transfer_dispense', 'no_drum', 'no_hoard',
-                null, 'free_tire_press', 'free_water', 'basic_mechanical', 'first_aid','design_eval','electric_eval'];
+                'pump_island',
+                'lane_oriented_pump',
+                null,
+                'pump_guard',
+                'm_ingress',
+                'm_edge',
+                'office_cashier',
+                'min_canopy',
+                'boundary_walls',
+                'master_switch',
+                'clean_rest',
+                'underground_storage',
+                null,
+                'm_distance',
+                'vent',
+                'transfer_dispense',
+                'no_drum',
+                'no_hoard',
+                 null,
+                'free_tire_press',
+                'free_water',
+                'basic_mechanical',
+                'first_aid',
+                'design_eval',
+                'electric_eval',];
+               // 'under_deliver'
             
             for ($i = 0; $i < count($arr_col1); $i++) {
                 $j = 9 + $i;
@@ -174,7 +222,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
                     if ($value1 == $NO) {
                         $pdf->SetTextColor(255, 0, 0); 
                     } else {
-                        $pdf->SetTextColor(0, 0, 0); 
+                        $pdf->SetTextColor(0, 0, 0);
                     }
 
                 } 
@@ -199,26 +247,26 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
             
 
            $valid_permits = [
-              'valid_permit_LGU',
-                'valid_permit_BFP',
-               'valid_permit_DENR'
+            'valid_permit_LGU',
+            'valid_permit_BFP',
+            'valid_permit_DENR',
            ];
                
-            $permitcol = 7;
+            
            $pdf->SetFont('ZapfDingbats','',9.5);
             $permit_yes =(chr(51)); // ✔ (Check mark)
            $permit_no = (chr(53)); // ✘ (Cross mark)
-        
+           $permitcol = 7;
 
            for ($i=0; $i<3; $i++){
-            $h= 1.5+ ($i*7) ;
-            $pdf->SetXY($headerX + $h, $headerY + $height * 10.8 + $headerXpadding); 
+            $h= 2.5+ ($i*7) ;
+            $pdf->SetXY($headerX + $h, $headerY + $height * 10.7 + $headerXpadding); 
 
             if($data_checklist[$valid_permits[$i]] == 1) {  
-                $pdf->Cell($permitcol, $height, $permit_yes, 1, 0);
+                $pdf->Cell($permitcol+10, $height, $permit_yes, $bordersize_checklist, 0);
             }
             else{
-                $pdf->Cell($permitcol, $height, $permit_no, 1, 0);
+                $pdf->Cell($permitcol, $height, $permit_no, $bordersize_checklist, 0);
             }
            }
 
@@ -242,7 +290,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
            $pdf->Image('itrf_p2_bg.jpg', 0, 0, 216, 356); 
             $pdf->SetFont('arialnarrow', '', 9);
             
-            $secondpageborder=1;
+            $secondpageborder=0;
             $secondpageheight=3.5;
             $headerX2ndPage =170;
             $headerY2ndPage =11.5  ;
@@ -275,7 +323,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
 
              //Suppliers Information--------------------------------->
             $pdf->SetFont('arialnarrow', '', 9);
-            $sql_supp_info = "SELECT id, receipt_invoice, supplier, date_delivery, address ,contact_number  FROM suppliersinfo WHERE itr_form_num = '$itr_form_num'";
+            $sql_supp_info = "SELECT id, receipt_invoice, supplier, date_deliver, address ,contact_num  FROM suppliersinfo WHERE itr_form_num = '$itr_form_num'";
             $result_supp_info = $conn->query($sql_supp_info);  
 
             
@@ -287,10 +335,10 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
               $arrays_supp_info = [
                  'receipt_invoice',
                  'supplier',
-                'date_delivery',
+                'date_deliver',
                 'address',
                 null,
-                'contact_number'
+                'contact_num'
                ];        
 
              for($i=0; $i < count($arrays_supp_info); $i++){
@@ -310,14 +358,14 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
 
 
              //with and without sample retentions--------------------------------->
-             $sql_prod_quality = "SELECT duplicate_samples,retention_retail, appropriate_sampling, inappropriate_sampling  FROM productqualitycont WHERE itr_form_num ='$itr_form_num'";
+             $sql_prod_quality = "SELECT duplicate_retention_samples,retention_retail, appropriate_sampling, inappropriate_sampling  FROM productqualitycont WHERE itr_form_num ='$itr_form_num'";
              $result_prod_quality = $conn->query($sql_prod_quality);
              if ($result_prod_quality === false) {
                 die("Query failed: " . $conn->error);
             }
              $data_product_quality = $result_prod_quality->fetch_assoc();
              $array_prod = [
-                 'duplicate_samples',
+                 'duplicate_retention_samples',
                   'retention_retail',
                  'appropriate_sampling',
                  'inappropriate_sampling'
@@ -349,6 +397,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
             $PRODUCT_YES = chr(51); // ✔ (Check mark)
             $PRODUCT_NO = chr(032); // Blank
             // Boolean fields array
+            
             $booleanFields_Compliance = [ 'coc_certificate', 'coc_posted', 'valid_permit_LGU', 'valid_permit_BFP', 'valid_permit_DENR', 
             'appropriate_test', 'week_calib', 'outlet_identify', 'price_display', 'pdb_entry', 
             'pdb_updated', 'pdb_match', 'ron_label', 'e10_label', 'biofuels', 'consumer_safety', 
@@ -380,7 +429,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
             $sql_remarks_summary = "SELECT * FROM standardcompliancechecklist WHERE itr_form_num = '$itr_form_num'";
 
             $boolean_remarks_pairs = [
-                ['coc_certificate', 'coc_cert_remarks'], ['coc_posted', 'coc_posted_remarks'],
+                ['coc_cert', 'coc_cert_remarks'], ['coc_posted', 'coc_posted_remarks'],
                 ['valid_permit_LGU', 'valid_permit_LGU_remarks'],
                 ['valid_permit_BFP', 'valid_permit_BFP_remarks'],
                 ['valid_permit_DENR', 'valid_permit_DENR_remarks'],
@@ -394,13 +443,13 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
                 ['ron_label', 'ron_label_remarks'],
                 ['e10_label', 'e10_label_remarks'],
                 ['biofuels', 'biofuels_remarks'],
-                ['consumer_safety', 'consume_safety_remarks'],
-                ['no_cel_warn', 'no_cel_warn_remarks'],
-                ['no_smoke_sign', 'no_smoke_sign_remarks'],
+                ['consume_safety', 'consume_safety_remarks'],
+                ['cel_warn', 'cel_warn_remarks'],
+                ['smoke_sign', 'smoke_sign_remarks'],
                 ['switch_eng', 'switch_eng_remarks'],
-                ['no_straddle', 'no_straddle_remarks'],
-                ['non_post_unleaded', 'non_post_unleaded_remarks'],
-                ['non_post_biodiesel', 'non_post_biodiesel_remarks'],
+                ['straddle', 'straddle_remarks'],
+                ['post_unleaded', 'post_unleaded_remarks'],
+                ['post_biodiesel', 'post_biodiesel_remarks'],
                 ['issue_receipt', 'issue_receipt_remarks'],
                 ['non_refuse_inspect', 'non_refuse_inspect_remarks'],
                 ['fixed_dispense', 'fixed_dispense_remarks'],
@@ -432,12 +481,11 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
                 ['under_deliver', 'under_deliver_remarks']
             ];
 
-            
             $result_remarks_summary = $conn->query($sql_remarks_summary);  
             if ($result_remarks_summary === false) {
                 die("Query failed: " . $conn->error);
             }
-        
+            
             $data_remarks_summary = $result_remarks_summary->fetch_assoc();
             $violation_headerY = 90; 
             $violation_headerX = 16;
@@ -446,40 +494,44 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
             $violation_border = 0;
             $maxLength_violation = 200;    
             
-            $concatenated_remarks = '';
+            $pdf->SetXY($violation_headerX, $violation_headerY);
+            
             foreach ($boolean_remarks_pairs as $pair) {
                 $boolean_column = $pair[0]; 
                 $remarks_column = $pair[1];
-
+            
                 if (isset($data_remarks_summary[$boolean_column]) && $data_remarks_summary[$boolean_column] == 0) {
-                    // Append the remarks to the concatenated string if it exists and is not empty
                     if (isset($data_remarks_summary[$remarks_column]) && !empty($data_remarks_summary[$remarks_column])) {
-                        $concatenated_remarks .= $data_remarks_summary[$remarks_column] ;
-                        $concatenated_remarks = str_replace(".", "," ,$concatenated_remarks);
-                      
+                        $remark = $data_remarks_summary[$remarks_column];
+                        $remark = str_replace(".", ",", $remark);
+                        
+                        // Output each remark in a separate cell
+                        $pdf->MultiCell($violation_cell_width, $violation_heightcell, $remark, $violation_border, 0);
+                        
+                        // Move Y position down for next remark
+                        $violation_headerY += $violation_heightcell;
+                        $pdf->SetXY($violation_headerX, $violation_headerY);
                     }
                 }
             }
-            $concatenated_remarks = rtrim($concatenated_remarks, ', ');
-            $pdf->SetXY($violation_headerX, $violation_headerY);
-            $pdf->MultiCell($violation_cell_width, $violation_heightcell, $concatenated_remarks, $violation_border, 0);
         
         
             
             //Action Required--------------------------------->
-            $text_action = 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the iLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the iinting and typesetting industry. Lorem Ipsum has been the iinting and typesetting industry. Lorem Ipsum has been the Lorem Ipsum has been the iiLorem Ipsum has been the ii been the Lorem Ipsum has been the iiLorem Ipsum';
-            $text_action2 = 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the iLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the iinting and typesetting industry. Lorem Ipsum has been the iinting and typesetting industry. Lorem Ipsum has been the Lorem Ipsum has been the iiLorem Ipsum has been the ii been the Lorem Ipsum has been the iiLorem Ipsum'; 
+            $text_action = 'Post COC visibly. Maintain calibration logs. Add missing fuel labels (RON/E-10/Biofuels) and safety signs. Issue official receipts. Ensure pumps meet safety standards (6m clearance, <5.5m hoses). Establish cashier booth. Install boundary walls. Fix storage tank vents. Stop fuel hoarding. Provide first aid kit. Priority: Safety and legal compliance first. Resolve within 7 days to avoid penalties.
+';
+            $text_action2 = 'Several compliance gaps were noted, including missing/expired permits, inconsistent fuel pricing, and absent safety signage. Infrastructure shortcomings include non-compliant pump island dimensions and low canopy heights. Operational risks involve improper fuel transfer and inadequate tank venting. Additional lapses include unclean restrooms.'; 
             $action_headerY =89.5;
             $action_headerX =110;
             $action_cell_width = 90;
             $action_heightcell = 3.9;
-            $action_border = 1;
+            $action_border = 0;
             $maxLength_action = 421;
-            $maxLength_action2 = 350;
+            $maxLength_action2 = 348;
             
         
             $truncated_action_Text1 = substr($text_action, 0,  $maxLength_action);
-            $truncated_action_Text2 = substr($text_action, 0,  $maxLength_action2);
+            $truncated_action_Text2 = substr($text_action2, 0,  $maxLength_action2);
 
            
              $pdf->SetXY( $action_headerX, $action_headerY );

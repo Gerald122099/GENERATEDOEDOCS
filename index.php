@@ -28,9 +28,10 @@
         
         .container {
             width: 100%;
+            display:block;
             max-width: 1000px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 10px;
             background-color: #fcfcfc;
             border-radius:18px;
             color:black;
@@ -90,7 +91,7 @@
             background: #f9f9f9;
             border-radius: 5px;
             border: 1px solid #ddd;
-            width:80%;
+            width:100%;
             margin: 15px auto;
             
         }

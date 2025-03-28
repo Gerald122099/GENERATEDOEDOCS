@@ -54,33 +54,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // 2. Insert into productquality if sampling
         if ($sampling == 1 && isset($_POST['code_value'])) {
-            $code_values = $_POST['code_value'];
-            $products = $_POST['product'];
-            $ron_values = $_POST['ron_value'];
-            $UGTs = $_POST['UGT'];
-            $pumps = $_POST['pump'];
-
-            $sql_product = "INSERT INTO productquality (itr_form_num, code_value, product, ron_value, UGT, pump) VALUES (?, ?, ?, ?, ?, ?)";
-            $stmt_product = $database->prepare($sql_product);
-            if (!$stmt_product) {
-                throw new Exception("Prepare failed: " . $database->error);
-            }
+            $code_values = $_POST['code_value'] ?? [];
+            $products = $_POST['product'] ?? [];
+            $ron_values = $_POST['ron_value'] ?? [];
+            $UGTs = $_POST['UGT'] ?? [];
+            $pumps = $_POST['pump'] ?? [];
             
-            for ($i = 0; $i < count($code_values); $i++) {
-                $code_value = $code_values[$i];
-                $product = $products[$i];
-                $ron_value = $ron_values[$i];
-                $UGT = $UGTs[$i];
-                $pump = $pumps[$i];
+            // Verify all arrays have same length
+            $count = count($code_values);
+            if ($count > 0 && 
+                $count === count($products) && 
+                $count === count($ron_values) && 
+                $count === count($UGTs) && 
+                $count === count($pumps)) {
                 
-                $stmt_product->bind_param("ssssss", $itr_form_num, $code_value, $product, $ron_value, $UGT, $pump);
-                if (!$stmt_product->execute()) {
-                    throw new Exception("Execute failed: " . $stmt_product->error);
+                $sql_product = "INSERT INTO productquality (itr_form_num, code_value, product, ron_value, UGT, pump) VALUES (?, ?, ?, ?, ?, ?)";
+                $stmt_product = $database->prepare($sql_product);
+                
+                if (!$stmt_product) {
+                    throw new Exception("Prepare failed: " . $database->error);
                 }
+                
+                $successCount = 0;
+                for ($i = 0; $i < $count; $i++) {
+                    $stmt_product->bind_param("ssssss", 
+                        $itr_form_num, 
+                        $code_values[$i], 
+                        $products[$i], 
+                        $ron_values[$i], 
+                        $UGTs[$i], 
+                        $pumps[$i]);
+                        
+                    if ($stmt_product->execute()) {
+                        $successCount++;
+                    } else {
+                        error_log("Failed to insert row $i: " . $stmt_product->error);
+                    }
+                }
+                
+                $stmt_product->close();
+                echo "Successfully inserted $successCount of $count rows";
+            } else {
+                throw new Exception("Form data arrays are inconsistent");
             }
-            $stmt_product->close();
         }
-
         // 3. Insert into standardcompliancechecklist
         $coc_certificate = isset($_POST['coc_certificate']) ? 1 : 0;
         $coc_posted = isset($_POST['coc_posted']) ? 1 : 0;
