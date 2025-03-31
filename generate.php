@@ -316,11 +316,12 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
                 $pdf->Cell($headercol_sampling + 8, $secondpageheight, $data_sampling['product'], $secondpageborder, 0);
                 $pdf->Cell($headercol_sampling + 4.5, $secondpageheight, $data_sampling['ron_value'], $secondpageborder, 0, 'C');
                 $pdf->Cell($headercol_sampling + 7, $secondpageheight, $data_sampling['UGT'], $secondpageborder, 0, 'C');
-                $pdf->Cell($headercol_sampling + 9, $secondpageheight, $data_sampling['pump'], $secondpageborder, 0,'C');
+                $pdf->Cell($headercol_sampling + 9, $secondpageheight, $sukod, $secondpageborder, 0,'C');
             
                 $i++; }
-            
-
+           
+                $sukod = strlen($result_supp_info['supplier']);
+                 
              //Suppliers Information--------------------------------->
             $pdf->SetFont('arialnarrow', '', 9);
             $sql_supp_info = "SELECT id, receipt_invoice, supplier, date_deliver, address ,contact_num  FROM suppliersinfo WHERE itr_form_num = '$itr_form_num'";
@@ -526,8 +527,8 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
             $action_cell_width = 90;
             $action_heightcell = 3.9;
             $action_border = 0;
-            $maxLength_action = 421;
-            $maxLength_action2 = 348;
+            $maxLength_action = 420;  ////action re
+            $maxLength_action2 = 350;
             
         
             $truncated_action_Text1 = substr($text_action, 0,  $maxLength_action);
