@@ -97,11 +97,6 @@ if (isset($_POST['insert_data'])) {
                 }
             }
             
-          
-
-
-
-       
             $values = [];
             $updateParts = [];
             foreach ($columnNames as $colName) {
@@ -224,13 +219,16 @@ if (isset($_POST['insert_data'])) {
     }
     
     $status = empty($importErrors) ? 'success' : (count($importErrors) == $duplicateCount ? 'success_with_duplicates' : 'failed');
-    $updateStmt = $mysql->prepare("UPDATE sqlite_files SET import_date = NOW(), import_status = ? WHERE filename = ? ORDER BY id DESC LIMIT 1");
-    $updateStmt->bind_param("ss", $status, basename($uploadedFile));
-    $updateStmt->execute();
-    $updateStmt->close();
-    
+
+    if ($status === 'success' || $status === 'success_with_duplicates') {
+        $updateStmt = $mysql->prepare("UPDATE sqlite_files SET import_date = NOW(), import_status = ? WHERE filename = ? ORDER BY id DESC LIMIT 1");
+        $updateStmt->bind_param("ss", $status, basename($uploadedFile));
+        $updateStmt->execute();
+        $updateStmt->close();
+    }
+
     $mysql->query("SET FOREIGN_KEY_CHECKS=1");
-    
+
     if (empty($importErrors) || count($importErrors) == $duplicateCount) {
         $success = true;
     }
@@ -291,8 +289,33 @@ if (isset($_POST['insert_data'])) {
                 Database Content Preview
             </div>
             <div class="card-body">
-                <form method="POST" id="importForm">
-                    <input type="hidden" name="insert_data" value="1">
+            <form method="POST" id="importForm">
+    <input type="hidden" name="insert_data" value="1">
+    
+    <div class="alert alert-warning d-flex align-items-center mb-3">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16">
+            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+        </svg>
+        <div>
+            <strong>Important Notice:</strong> 
+            <ol class="mb-2">
+                <li>Please carefully review all data in the preview below before importing.</li>
+                <li>Double-check for accuracy, especially for:
+                    <ul>
+                        <li>Correct ITR Form Numbers</li>
+                        <li>Accurate business information</li>
+                        <li>Proper date formatting</li>
+                        <li>Complete data in all required fields</li>
+                    </ul>
+                </li>
+                <li class="fw-bold">After verifying the data is correct, click the "Import to MySQL" button below to proceed.</li>
+            </ol>
+            <div class="alert alert-info mt-2 p-2">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                The import process may take several minutes depending on the data volume. Please don't close this page during import.
+            </div>
+        </div>
+    </div>
                     <button type="submit" class="btn btn-success mb-3" id="importButton">Import to MySQL</button>
                     
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -384,417 +407,306 @@ if (isset($_POST['insert_data'])) {
         <?php endif; ?>
     </div>
 
-    <script>
-        <?php if ($success): ?>
-        document.addEventListener('DOMContentLoaded', function() {
-            const businessInfoInserts = <?php echo json_encode(array_filter($insertedRows, function($row) {
-                return strtolower($row['table']) === 'businessinfo' && isset($row['values']['itr_form_num']);
-            })); ?>;
-            
-            const childTableInserts = <?php echo json_encode(array_filter($insertedRows, function($row) {
-                return strtolower($row['table']) !== 'businessinfo';
-            })); ?>;
-            
-            const updatedRowsData = <?php echo json_encode($updatedRows); ?>;
-            
-            let successContent = `
-                <div style="text-align: left;">
-                    <div class="alert alert-success mb-3">
-                        <h4 class="alert-heading">✅ Data import completed successfully!</h4>
-                        <hr>
-                        <h5>Summary</h5>
-                        <ul>
-                            <li>New Business Records: ${businessInfoInserts.length}</li>
-                            <li>Related Records Inserted: ${childTableInserts.length}</li>
-                            <li>Updated Records: ${updatedRowsData.length}</li>
-                        </ul>
-                    </div>`;
-            
-            // Business Info Section - Detailed View
-            if (businessInfoInserts.length > 0) {
-                successContent += `
-                    <div class="alert alert-info">
-                        <h5>Business Records Details (${businessInfoInserts.length})</h5>
-                        <div style="max-height: 350px; overflow-y: auto;">
-                            <table class="table table-sm" style="width: 100%;">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>ITR Form #</th>
-                                        <th>Business Name</th>
-                                        <th>Dealer/Operator</th>
-                                        <th>Location</th>
-                                        <th>In Charge</th>
-                                        <th>Designation</th>
-                                        <th>Date/Time</th>
-                                        <th>SA No</th>
-                                        <th>SA Date</th>
-                                        <th>Outlet Class</th>
-                                        <th>Company</th>
-                                        <th>Contact Tel</th>
-                                        <th>Email Address</th>
-                                    </tr>
-                                </thead>
-                                <tbody>`;
-                
-                businessInfoInserts.slice(0, 50).forEach(row => {
-                    successContent += `
-                                    <tr>
-                                        <td>${row.values.itr_form_num || 'N/A'}</td>
-                                        <td>${row.values.business_name || 'N/A'}</td>
-                                        <td>${row.values.dealer_operator || 'N/A'}</td>
-                                        <td>${row.values.location || 'N/A'}</td>
-                                        <td>${row.values.in_charge || 'N/A'}</td>
-                                        <td>${row.values.designation || 'N/A'}</td>
-                                        <td>${row.values.date_time || 'N/A'}</td>
-                                        <td>${row.values.sa_no || 'N/A'}</td>
-                                        <td>${row.values.sa_date || 'N/A'}</td>
-                                        <td>${row.values.outlet_class || 'N/A'}</td>
-                                        <td>${row.values.company || 'N/A'}</td>
-                                        <td>${row.values.contact_tel || 'N/A'}</td>
-                                        <td>${row.values.email_add || 'N/A'}</td>
-                                    </tr>`;
-                });
-                
-                successContent += `
-                                </tbody>
-                            </table>`;
-                
-                if (businessInfoInserts.length > 50) {
-                    successContent += `<p>+ ${businessInfoInserts.length - 50} more records...</p>`;
-                }
-                
-                successContent += `
+    <?php
+// [Previous PHP code remains the same until the script section]
+?>
+
+<script>
+    <?php if ($success): ?>
+    document.addEventListener('DOMContentLoaded', function() {
+        const insertedRowsData = <?php echo json_encode($insertedRows); ?>;
+        const updatedRowsData = <?php echo json_encode($updatedRows); ?>;
+        const duplicateCount = <?php echo $duplicateCount; ?>;
+        
+        // Check if there were any actual changes
+        const hasNewData = insertedRowsData.length > 0;
+        const hasUpdates = updatedRowsData.length > 0;
+        const hasOnlyDuplicates = !hasNewData && !hasUpdates && duplicateCount > 0;
+        
+        if (!hasNewData && !hasUpdates) {
+            if (hasOnlyDuplicates) {
+                // Case 1: Only duplicate records found (no updates made)
+                Swal.fire({
+                    title: 'No New Data Imported',
+                    html: `<div style="text-align: left;">
+                        <div class="alert alert-info">
+                            <h5>Duplicate Records Found</h5>
+                            <p>${duplicateCount} records already exist in the database and were not modified because:</p>
+                            <ul>
+                                <li>No changes were detected in the existing records</li>
+                                <li>Or the records were identical to existing ones</li>
+                            </ul>
                         </div>
-                    </div>`;
-            }
-            
-            // Child Tables Section
-            if (childTableInserts.length > 0) {
-                const childTables = {};
-                childTableInserts.forEach(row => {
-                    if (!childTables[row.table]) {
-                        childTables[row.table] = [];
-                    }
-                    childTables[row.table].push(row);
+                    </div>`,
+                    icon: 'info',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.location.reload();
                 });
+            } else {
+                // Case 2: No changes at all
+                Swal.fire({
+                    title: 'No Changes Detected',
+                    text: 'The database was imported successfully, but no new or modified records were found.',
+                    icon: 'info',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.location.reload();
+                });
+            }
+        } else {
+            // Case 3: Some changes were made (inserts or updates)
+            let successContent = `<div style="text-align: left;">`;
+            
+            if (hasNewData) {
+                const businessInfoInserts = insertedRowsData.filter(row => 
+                    row.table.toLowerCase() === 'businessinfo' && row.values.itr_form_num
+                );
                 
-                successContent += `
-                    <div class="alert alert-secondary">
-                        <h5>Related Records Inserted</h5>`;
-                
-                Object.entries(childTables).forEach(([tableName, rows]) => {
+                if (businessInfoInserts.length > 0) {
                     successContent += `
-                        <div class="mb-3">
-                            <h6>${tableName} (${rows.length})</h6>
-                            <div style="max-height: 200px; overflow-y: auto;">
-                                <table class="table table-sm" style="width: 100%;">
+                        <div class="alert alert-success">
+                            <h5>✅ New Business Records Added (${businessInfoInserts.length})</h5>
+                            <div style="max-height: 300px; overflow-y: auto;">
+                                <table class="table table-sm">
                                     <thead>
                                         <tr>
                                             <th>ITR Form #</th>
-                                            <th>Record ID</th>
+                                            <th>Business Name</th>
+                                            <th>Location</th>
                                         </tr>
                                     </thead>
                                     <tbody>`;
                     
-                    rows.slice(0, 5).forEach(row => {
+                    businessInfoInserts.slice(0, 10).forEach(row => {
                         successContent += `
+                            <tr>
+                                <td>${row.values.itr_form_num || 'N/A'}</td>
+                                <td>${row.values.business_name || 'N/A'}</td>
+                                <td>${row.values.location || 'N/A'}</td>
+                            </tr>`;
+                    });
+                    
+                    successContent += `</tbody></table>`;
+                    
+                    if (businessInfoInserts.length > 10) {
+                        successContent += `<p>+ ${businessInfoInserts.length - 10} more records</p>`;
+                    }
+                    
+                    successContent += `</div></div>`;
+                }
+            }
+            
+            if (hasUpdates) {
+                const meaningfulUpdates = updatedRowsData.filter(row => 
+                    Object.values(row.changed_columns).some(change => 
+                        change.old !== 'NULL' && change.old !== '' && 
+                        change.new !== 'NULL' && change.new !== ''
+                    )
+                );
+                
+                if (meaningfulUpdates.length > 0) {
+                    successContent += `
+                        <div class="alert alert-warning">
+                            <h5>🔄 Updated Records (${meaningfulUpdates.length})</h5>
+                            <p>The following records were updated because changes were detected:</p>
+                            <div style="max-height: 300px; overflow-y: auto;">
+                                <table class="table table-sm">
+                                    <thead>
                                         <tr>
-                                            <td>${row.values.itr_form_num || 'N/A'}</td>
-                                            <td>${row.values.id || 'N/A'}</td>
-                                        </tr>`;
-                    });
+                                            <th>Table</th>
+                                            <th>ITR Form #</th>
+                                            <th>Changes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>`;
+
+                 
                     
-                    successContent += `
-                                    </tbody>
-                                </table>`;
-                    
-                    if (rows.length > 5) {
-                        successContent += `<p>+ ${rows.length - 5} more records...</p>`;
-                    }
-                    
-                    successContent += `
-                            </div>
-                        </div>`;
-                });
-                
-                successContent += `
-                    </div>`;
-            }
-            
-            // Updates Section
-            const meaningfulUpdates = updatedRowsData.filter(row => {
-                return Object.values(row.changed_columns).some(change => {
-                    return change.old !== 'NULL' && change.old !== '' && 
-                           change.new !== 'NULL' && change.new !== '';
-                });
-            });
-            
-            if (meaningfulUpdates.length > 0) {
-                successContent += `
-                    <div class="alert alert-warning">
-                        <h5>Updated Records (${meaningfulUpdates.length})</h5>
-                        <div style="max-height: 300px; overflow-y: auto;">
-                            <table class="table table-sm" style="width: 100%;">
-                                <thead>
-                                    <tr>
-                                        <th>Table</th>
-                                        <th>ITR Form #</th>
-                                        <th>Changes</th>
-                                    </tr>
-                                </thead>
-                                <tbody>`;
-                
-                meaningfulUpdates.slice(0, 5).forEach(row => {
-                    successContent += `
-                                    <tr>
-                                        <td>${row.table}</td>
-                                        <td>${row.values.itr_form_num || 'N/A'}</td>
-                                        <td>
-                                            <ul style="padding-left: 20px; margin-bottom: 0;">`;
-                    
-                    Object.entries(row.changed_columns).slice(0, 3).forEach(([col, values]) => {
-                        if (values.old !== 'NULL' && values.old !== '' && 
-                            values.new !== 'NULL' && values.new !== '') {
-                            successContent += `
-                                                <li>
-                                                    <strong>${col}:</strong> 
-                                                    <span class="diff-old">${values.old}</span> → 
-                                                    <span class="diff-new">${values.new}</span>
-                                                </li>`;
+                    meaningfulUpdates.slice(0, 5).forEach(row => {
+                        successContent += `
+                            <tr>
+                                <td>${row.table}</td>
+                                <td>${row.values.itr_form_num || 'N/A'}</td>
+                                <td>
+                                    <ul style="padding-left: 20px; margin-bottom: 0;">`;
+                        
+                        Object.entries(row.changed_columns).slice(0, 3).forEach(([col, values]) => {
+                            if (values.old !== 'NULL' && values.old !== '' && 
+                                values.new !== 'NULL' && values.new !== '') {
+                                successContent += `
+                                    <li>
+                                        <strong>${col}:</strong> 
+                                        <span class="diff-old">${values.old}</span> → 
+                                        <span class="diff-new">${values.new}</span>
+                                    </li>`;
+                            }
+                        });
+                        
+                        if (Object.keys(row.changed_columns).length > 3) {
+                            successContent += `<li>+ ${Object.keys(row.changed_columns).length - 3} more changes</li>`;
                         }
+                        
+                        successContent += `</ul></td></tr>`;
                     });
                     
-                    if (Object.keys(row.changed_columns).length > 3) {
-                        successContent += `<li>+ ${Object.keys(row.changed_columns).length - 3} more changes</li>`;
+                    successContent += `</tbody></table>`;
+                    
+                    if (meaningfulUpdates.length > 5) {
+                        successContent += `<p>+ ${meaningfulUpdates.length - 5} more records</p>`;
                     }
                     
-                    successContent += `
-                                            </ul>
-                                        </td>
-                                    </tr>`;
-                });
-                
-                if (meaningfulUpdates.length > 5) {
-                    successContent += `<tr><td colspan="3">+ ${meaningfulUpdates.length - 5} more records</td></tr>`;
+                    successContent += `</div></div>`;
                 }
-                
+            }
+            
+            if (duplicateCount > 0) {
                 successContent += `
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>`;
-            }
-            
-            successContent += `
-                </div>`;
-            
-            Swal.fire({
-                title: 'Import Results',
-                html: successContent,
-                icon: 'success',
-                confirmButtonText: 'OK',
-                width: '1200px',
-                customClass: {
-                    content: 'text-left'
-                }
-            });
-        });
-        <?php elseif (!empty($importErrors)): ?>
-        document.addEventListener('DOMContentLoaded', function() {
-            const errorGroups = {
-                duplicates: [],
-                other: []
-            };
-            
-            <?php foreach ($importErrors as $error): ?>
-                <?php if (strpos($error, 'duplicate') !== false || strpos($error, 'existing') !== false): ?>
-                    errorGroups.duplicates.push("<?php echo addslashes($error); ?>");
-                <?php else: ?>
-                    errorGroups.other.push("<?php echo addslashes($error); ?>");
-                <?php endif; ?>
-            <?php endforeach; ?>
-            
-            const insertedRowsData = <?php echo json_encode($insertedRows); ?>;
-            const updatedRowsData = <?php echo json_encode($updatedRows); ?>;
-            
-            let errorContent = `
-                <div style="text-align: left;">
-                    <div class="alert alert-warning mb-3">
-                        <h4 class="alert-heading">⚠️ Data import completed with some issues</h4>
-                        <hr>
-                        <h5>Summary</h5>
-                        <ul>
-                            <li>Successful Business Inserts: ${insertedRowsData.filter(r => r.table.toLowerCase() === 'businessinfo').length}</li>
-                            <li>Successful Updates: ${updatedRowsData.length}</li>
-                            <li>Errors: ${errorGroups.other.length}</li>
-                        </ul>
-                    </div>`;
-            
-            // Business Info Section - Detailed View
-            const businessInfoInserts = insertedRowsData.filter(row => {
-                return row.table.toLowerCase() === 'businessinfo' && row.values.itr_form_num;
-            });
-            
-            if (businessInfoInserts.length > 0) {
-                errorContent += `
-                    <div class="alert alert-success">
-                        <h5>Business Records Details (${businessInfoInserts.length})</h5>
-                        <div style="max-height: 400px; overflow-y: auto;">
-                            <table class="table table-sm" style="width: 100%;">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>ITR Form #</th>
-                                        <th>Business Name</th>
-                                        <th>Dealer/Operator</th>
-                                        <th>Location</th>
-                                        <th>In Charge</th>
-                                        <th>Designation</th>
-                                        <th>Date/Time</th>
-                                        <th>SA No</th>
-                                        <th>SA Date</th>
-                                        <th>Outlet Class</th>
-                                        <th>Company</th>
-                                        <th>Contact Tel</th>
-                                        <th>Email Address</th>
-                                    </tr>
-                                </thead>
-                                <tbody>`;
                 
-                businessInfoInserts.slice(0, 50).forEach(row => {
-                    errorContent += `
-                                    <tr>
-                                        <td>${row.values.itr_form_num || 'N/A'}</td>
-                                        <td>${row.values.business_name || 'N/A'}</td>
-                                        <td>${row.values.dealer_operator || 'N/A'}</td>
-                                        <td>${row.values.location || 'N/A'}</td>
-                                        <td>${row.values.in_charge || 'N/A'}</td>
-                                        <td>${row.values.designation || 'N/A'}</td>
-                                        <td>${row.values.date_time || 'N/A'}</td>
-                                        <td>${row.values.sa_no || 'N/A'}</td>
-                                        <td>${row.values.sa_date || 'N/A'}</td>
-                                        <td>${row.values.outlet_class || 'N/A'}</td>
-                                        <td>${row.values.company || 'N/A'}</td>
-                                        <td>${row.values.contact_tel || 'N/A'}</td>
-                                        <td>${row.values.email_add || 'N/A'}</td>
-                                    </tr>`;
-                });
-                
-                errorContent += `
-                                </tbody>
-                            </table>`;
-                
-                if (businessInfoInserts.length > 50) {
-                    errorContent += `<p>+ ${businessInfoInserts.length - 50} more records...</p>`;
-                }
-                
-                errorContent += `
-                        </div>
-                    </div>`;
-            }
-            
-            // Updates Section
-            const meaningfulUpdates = updatedRowsData.filter(row => {
-                return Object.values(row.changed_columns).some(change => {
-                    return change.old !== 'NULL' && change.old !== '' && 
-                           change.new !== 'NULL' && change.new !== '';
-                });
-            });
-            
-            if (meaningfulUpdates.length > 0) {
-                errorContent += `
                     <div class="alert alert-info">
-                        <h5>Updated Records (${meaningfulUpdates.length})</h5>
-                        <div style="max-height: 300px; overflow-y: auto;">
-                            <table class="table table-sm" style="width: 100%;">
-                                <thead>
-                                    <tr>
-                                        <th>Table</th>
-                                        <th>ITR Form #</th>
-                                        <th>Changes</th>
-                                    </tr>
-                                </thead>
-                                <tbody>`;
-                
-                meaningfulUpdates.slice(0, 5).forEach(row => {
-                    errorContent += `
-                                    <tr>
-                                        <td>${row.table}</td>
-                                        <td>${row.values.itr_form_num || 'N/A'}</td>
-                                        <td>
-                                            <ul style="padding-left: 20px; margin-bottom: 0;">`;
-                    
-                    Object.entries(row.changed_columns).slice(0, 3).forEach(([col, values]) => {
-                        if (values.old !== 'NULL' && values.old !== '' && 
-                            values.new !== 'NULL' && values.new !== '') {
-                            errorContent += `
-                                                <li>
-                                                    <strong>${col}:</strong> 
-                                                    <span class="diff-old">${values.old}</span> → 
-                                                    <span class="diff-new">${values.new}</span>
-                                                </li>`;
-                        }
-                    });
-                    
-                    if (Object.keys(row.changed_columns).length > 3) {
-                        errorContent += `<li>+ ${Object.keys(row.changed_columns).length - 3} more changes</li>`;
-                    }
-                    
-                    errorContent += `
-                                            </ul>
-                                        </td>
-                                    </tr>`;
-                });
-                
-                if (meaningfulUpdates.length > 5) {
-                    errorContent += `<tr><td colspan="3">+ ${meaningfulUpdates.length - 5} more records</td></tr>`;
-                }
-                
-                errorContent += `
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>`;
-            }
-            
-            // Errors section
-            if (errorGroups.other.length > 0) {
-                errorContent += `
-                    <div class="alert alert-danger">
-                        <h5>Errors (${errorGroups.other.length})</h5>
-                        <div style="max-height: 200px; overflow-y: auto;">
+                        <h5>⚠️ ${duplicateCount} Existing Records Not Modified</h5>
+                        <p>These records already existed in the database and were identical to the imported data.</p>
+                    </div>`
+
+                    Swal.fire({
+                    title: 'No New Data Imported',
+                    html: `<div style="text-align: left;">
+                        <div class="alert alert-info">
+                            <h5>Duplicate Records Found</h5>
+                            <p>${duplicateCount} records already exist in the database and were not modified because:</p>
                             <ul>
-                                ${errorGroups.other.slice(0, 5).map(error => `
-                                    <li>${error}</li>
-                                `).join('')}
-                                ${errorGroups.other.length > 5 ? `
-                                    <li>+ ${errorGroups.other.length - 5} more errors</li>
-                                ` : ''}
+                                <li>No changes were detected in the existing records</li>
+                                <li>Or the records were identical to existing ones</li>
                             </ul>
                         </div>
-                    </div>`;
+                    </div>`,
+                    icon: 'info',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.location.reload();
+                });
             }
             
-            errorContent += `
-                </div>`;
+            successContent += `</div>`;
             
             Swal.fire({
-                title: 'Import Results',
-                html: errorContent,
-                icon: 'warning',
-                confirmButtonText: 'OK',
-                width: '1200px',
-                customClass: {
-                    content: 'text-left'
-                }
-            });
-        });
-        <?php endif; ?>
-        
-        if (window.history.replaceState) {
-            window.history.replaceState(null, null, window.location.href);
+    title: 'Import Results',
+    html: successContent,
+    icon: (duplicateCount && !hasNewData && !hasUpdates) ? 'warning' : 'success',
+    confirmButtonText: 'OK',
+    width: '800px'
+}).then(() => {
+    window.location.reload();
+});
         }
-    </script>
+    });
+    <?php elseif (!empty($importErrors)): ?>
+    document.addEventListener('DOMContentLoaded', function() {
+        const errorGroups = {
+            duplicates: [],
+            schema: [],
+            data: [],
+            other: []
+        };
+        
+        <?php foreach ($importErrors as $error): ?>
+            <?php if (strpos($error, 'duplicate') !== false || strpos($error, 'existing') !== false): ?>
+                errorGroups.duplicates.push("<?php echo addslashes($error); ?>");
+            <?php elseif (strpos($error, 'Table') !== false && strpos($error, "doesn't exist") !== false): ?>
+                errorGroups.schema.push("<?php echo addslashes($error); ?>");
+            <?php elseif (strpos($error, 'Error inserting') !== false || strpos($error, 'Error updating') !== false): ?>
+                errorGroups.data.push("<?php echo addslashes($error); ?>");
+            <?php else: ?>
+                errorGroups.other.push("<?php echo addslashes($error); ?>");
+            <?php endif; ?>
+        <?php endforeach; ?>
+        
+        let errorContent = `<div style="text-align: left;">`;
+        
+        // Schema errors (missing tables)
+        if (errorGroups.schema.length > 0) {
+            errorContent += `
+                <div class="alert alert-danger">
+                    <h5>Database Structure Issues</h5>
+                    <p>The following tables are missing in MySQL:</p>
+                    <div style="max-height: 200px; overflow-y: auto;">
+                        <ul>
+                            ${errorGroups.schema.slice(0, 10).map(error => `
+                                <li>${error.replace("Table ", "").replace(" doesn't exist in MySQL - skipped", "")}</li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                    <p class="mt-2"><strong>Solution:</strong> Ensure all required tables exist in the MySQL database.</p>
+                </div>`;
+        }
+        
+        // Data errors
+        if (errorGroups.data.length > 0) {
+            errorContent += `
+                <div class="alert alert-warning">
+                    <h5>Data Import Issues</h5>
+                    <p>The following data could not be imported:</p>
+                    <div style="max-height: 200px; overflow-y: auto;">
+                        <ul>
+                            ${errorGroups.data.slice(0, 10).map(error => `
+                                <li>${error}</li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                    <p class="mt-2"><strong>Possible causes:</strong> Data format mismatch, constraints violation, or missing references.</p>
+                </div>`;
+        }
+        
+        // Other errors
+        if (errorGroups.other.length > 0) {
+            errorContent += `
+                <div class="alert alert-danger">
+                    <h5>Other Errors</h5>
+                    <div style="max-height: 200px; overflow-y: auto;">
+                        <ul>
+                            ${errorGroups.other.slice(0, 10).map(error => `
+                                <li>${error}</li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                </div>`;
+        }
+        
+        // Duplicate warnings (not really errors)
+        if (errorGroups.duplicates.length > 0) {
+            errorContent += `
+                <div class="alert alert-info">
+                    <h5>Duplicate Records</h5>
+                    <p>${errorGroups.duplicates.length} records already existed in the database.</p>
+                    <div style="max-height: 200px; overflow-y: auto;">
+                        <ul>
+                            ${errorGroups.duplicates.slice(0, 5).map(error => `
+                                <li>${error.replace("Error updating duplicate in ", "").replace(": Duplicate entry", "Record exists")}</li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                    <p class="mt-2">These records were not modified as they were identical to existing data.</p>
+                </div>`;
+        }
+        
+        errorContent += `</div>`;
+        
+        Swal.fire({
+            title: 'Import Completed with Issues',
+            html: errorContent,
+            icon: 'warning',
+            confirmButtonText: 'OK',
+            width: '800px'
+        }).then(() => {
+            window.location.reload();
+        });
+    });
+    <?php endif; ?>
+    
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+</script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-   
 </body>
 </html>

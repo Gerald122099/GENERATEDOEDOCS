@@ -3,7 +3,10 @@ ob_start(); // Start output buffering
 require('fpdf/fpdf.php');
 include 'config.php';
 header('Content-Type: text/html; charset=utf-8');
-
+header('Content-Type: application/pdf');
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET");
+header('Content-Disposition: inline; filename="business_report.pdf"');
 if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
     $itr_form_num = $_GET['id'];
     $sql_business_info = "SELECT * FROM businessinfo WHERE itr_form_num ='$itr_form_num'";
@@ -316,12 +319,12 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
                 $pdf->Cell($headercol_sampling + 8, $secondpageheight, $data_sampling['product'], $secondpageborder, 0);
                 $pdf->Cell($headercol_sampling + 4.5, $secondpageheight, $data_sampling['ron_value'], $secondpageborder, 0, 'C');
                 $pdf->Cell($headercol_sampling + 7, $secondpageheight, $data_sampling['UGT'], $secondpageborder, 0, 'C');
-                $pdf->Cell($headercol_sampling + 9, $secondpageheight, $sukod, $secondpageborder, 0,'C');
+                $pdf->Cell($headercol_sampling + 9, $secondpageheight, $data_sampling['pump'], $secondpageborder, 0,'C');
             
                 $i++; }
            
-                $sukod = strlen($result_supp_info['supplier']);
-                 
+               
+               
              //Suppliers Information--------------------------------->
             $pdf->SetFont('arialnarrow', '', 9);
             $sql_supp_info = "SELECT id, receipt_invoice, supplier, date_deliver, address ,contact_num  FROM suppliersinfo WHERE itr_form_num = '$itr_form_num'";
