@@ -1003,13 +1003,8 @@ input:not(:checked) ~ .mode-label.edit-mode {
     </div>
 </div>
 <?php endif; ?>
-                         
-
                     
-                        
-
-
-                         <!-- Submit Button -->
+                             <!-- Submit Button -->
                                 <button type="submit" class="btn btn-primary">Submit</button>
                             </form>
                         </div>
@@ -1174,55 +1169,50 @@ input:not(:checked) ~ .mode-label.edit-mode {
                     
 
                     <?php if($_SESSION['role'] == 'legal'): ?>
-                     
-
-                    
-                    
-                    <?php foreach ($violation_pairs as $pair) {
-                        $boolean_column = $pair[0]; 
-                        $label = $pair[1];
-                        $remarks_column = $pair[2];
-                    ?>
-                    document.getElementById('div_<?php echo $boolean_column ?>').style.display = "none";
-                        if (data["checklist"]["<?php echo $boolean_column ?>"] == 0){
+                                    
+                        <?php foreach ($violation_pairs as $pair)
+                        {
+                                        $boolean_column = $pair[0]; 
+                                        $label = $pair[1];
+                                        $remarks_column = $pair[2];
+                        ?>
+                                document.getElementById('div_<?php echo $boolean_column ?>').style.display = "none";
+                                    if (data["checklist"]["<?php echo $boolean_column ?>"] == 0){
+                                            
+                                            document.getElementById('div_<?php echo $boolean_column ?>').style.display = "inline";
+                                            document.getElementById('remarks_<?php echo $remarks_column ?>').innerHTML   = data["checklist"]["<?php echo $remarks_column ?>"] || '';
+                                    }
                             
-                            document.getElementById('div_<?php echo $boolean_column ?>').style.display = "inline";
-                            document.getElementById('remarks_<?php echo $remarks_column ?>').innerHTML   = data["checklist"]["<?php echo $remarks_column ?>"] || '';
-                        }
                         
-                    
-                    <?php } 
+                        <?php } 
                     endif ?>
-
-
                     
-                    <?php if($_SESSION['role'] !== 'legal'): ?>
+                <?php if($_SESSION['role'] !== 'legal'): ?>
                      
-
-                    
-                    
                     <?php foreach ($violation_pairs as $pair) {
-                        $boolean_column = $pair[0]; 
-                        $label = $pair[1];
-                        $remarks_column = $pair[2];
+                            $boolean_column = $pair[0]; 
+                            $label = $pair[1];
+                            $remarks_column = $pair[2];
                     ?>
-                        setCheckboxState("<?php echo $boolean_column ?>", data["checklist"]["<?php echo $boolean_column ?>"]);
-                        document.getElementById('<?php echo $remarks_column ?>').value = data["checklist"]["<?php echo $remarks_column ?>"] || '';
-
-                    
+                            setCheckboxState("<?php echo $boolean_column ?>", data["checklist"]["<?php echo $boolean_column ?>"]);
+                            document.getElementById('<?php echo $remarks_column ?>').value = data["checklist"]["<?php echo $remarks_column ?>"] || '';
                     <?php } ?>
 
+
                     
-                    setCheckboxState('duplicate_retention_samples', data.checklist.duplicate_retention_samples);
-                    setCheckboxState('appropriate_sampling', data.checklist.appropriate_sampling);
-                    
-                    // Supplier Info
-                    document.getElementById('receipt_invoice').value = data.supplierInfo.receipt_invoice || '';
-                    document.getElementById('supplier').value = data.supplierInfo.supplier || '';
-                    document.getElementById('date_deliver').value = data.supplierInfo.date_deliver || '';
-                    document.getElementById('address').value = data.supplierInfo.address || '';
-                    document.getElementById('contact_num').value = data.supplierInfo.contact_num || '';
-                    
+                        setCheckboxState('duplicate_retention_samples', data.checklist.duplicate_retention_samples);
+                        setCheckboxState('appropriate_sampling', data.checklist.appropriate_sampling);
+                        
+console.log("------------------------------")
+                        if (data.supplierInfo){
+                            // Supplier Info
+                            document.getElementById('receipt_invoice').value = data.supplierInfo.receipt_invoice || '';
+                            document.getElementById('supplier').value = data.supplierInfo.supplier || '';
+                            document.getElementById('date_deliver').value = data.supplierInfo.date_deliver || '';
+                            document.getElementById('address').value = data.supplierInfo.address || '';
+                            document.getElementById('contact_num').value = data.supplierInfo.contact_num || '';
+                        }
+                        console.log(data.productQuality);
                     // Product Quality (Sampling) with Dropdowns
                     if (data.productQuality && data.productQuality.length > 0) {
                         document.getElementById('sampling').checked = true;
@@ -1298,11 +1288,12 @@ input:not(:checked) ~ .mode-label.edit-mode {
                         document.getElementById('action_required').value = '';
                         document.getElementById('user_gen_remarks').value = '';
                     }
-                    <?php endif; ?>
+                     
+                <?php endif; ?>
 
-                    <?php if($_SESSION['role'] == 'legal'): ?>
-                        console.log(data.checklist);
-                    <?php endif; ?>
+                <?php if($_SESSION['role'] == 'inspector'): ?>
+                    console.log(data.checklist);
+                <?php endif; ?>
 
                 }
 
@@ -1563,7 +1554,7 @@ function checkForExistingRecord() {
                             populateForm(data);
                         })
                         .catch(error => {
-                            console.error('Error loading record:', error);
+                            //console.error('Error loading record:', error);
                             alert('Error loading record data. Please try again.');
                         });
                 }

@@ -38,10 +38,6 @@ if(!isset($_SESSION['role']) || !in_array($_SESSION['role'], $allowed_roles)) {
 }
 
 
-
-
-  
-
 $violation_pairs = [
     ['coc_cert', 'a.1 Certificate of Compliance (COC)', 'coc_cert_remarks'],
     ['coc_posted', 'a.2 COC posted within business premises', 'coc_posted_remarks'],
