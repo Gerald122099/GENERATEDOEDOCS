@@ -1,5 +1,7 @@
 <?php
 require 'config.php';
+checkLogin();
+allowAccess();
 $uploadedFile = "uploads/sqlite_db.sqlite";
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -241,10 +243,135 @@ if (isset($_POST['insert_data'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SQLite to MySQL Import</title>
+    <link rel="icon" type="image/x-icon" href="..\itr\assets\img\inspectlogo.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        .container { max-width: 1200px; margin-top: 30px; }
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #1a252f;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+        }
+        
+        .container-fluid {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            position: relative;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        
+        .sidebar-header {
+            padding: 15px 20px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .sidebar-header h3 {
+            margin-left: 10px;
+            font-size: 1.5rem;
+            font-weight: 200;
+            color: rgb(24, 15, 103);
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+        }
+        
+        .menu-toggle {
+            display: block;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .sidebar-menu {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        
+        .sidebar-menu.active {
+            max-height: 1000px;
+            padding: 10px 0;
+        }
+        
+        .sidebar-menu li {
+            list-style: none;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--light);
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 15px;
+        }
+        
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .sidebar-menu a i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            padding: 15px;
+            background-color: #f5f7fa;
+        }
+        
+        .header {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 15px;
+        }
+        
+        .header h2 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        
         .table { font-size: 13px; margin-bottom: 20px; }
         .alert { margin-top: 20px; }
         .card-header { font-weight: bold; }
@@ -262,60 +389,149 @@ if (isset($_POST['insert_data'])) {
         .changes-table td { padding: 8px; border-bottom: 1px solid #dee2e6; }
         .swal2-popup { text-align: left !important; }
         .alert-heading { font-size: 20px;}
+        
+        /* Media Queries */
+        @media (min-width: 768px) {
+            .container-fluid {
+                flex-direction: row;
+            }
+            
+            .sidebar {
+                width: 250px;
+                height: 100vh;
+                position: sticky;
+                top: 0;
+            }
+            
+            .menu-toggle {
+                display: none;
+            }
+            
+            .sidebar-menu {
+                max-height: none;
+                padding: 20px 0;
+                display: block !important;
+            }
+            
+            .main-content {
+                padding: 20px;
+                width: calc(100% - 250px);
+            }
+            
+            .header {
+                padding: 15px 20px;
+                flex-direction: row;
+                align-items: center;
+            }
+            
+            .header h2 {
+                margin-bottom: 0;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2 class="mb-4">SQLite to MySQL Import Tool</h2>
-        
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                Upload SQLite Database
+    <div class="container-fluid p-0">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+            <div style="display: flex; align-items: center;">
+                    <img src="..\itr\assets\img\inspectlogo.png" alt="Logo" class="mb-3" width="65px">
+                    <h3>DataSpect</h3>
+                </div>
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
             </div>
-            <div class="card-body">
-                <form method="POST" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label class="form-label">Select SQLite Database File</label>
-                        <input type="file" name="sqlite_db" class="form-control" required accept=".sqlite,.db">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Upload</button>
-                </form>
-            </div>
-        </div>
-        
-        <?php if (!empty($tables) && $sqlite) : ?>
-        <div class="card mt-4">
-            <div class="card-header bg-success text-white">
-                Database Content Preview
-            </div>
-            <div class="card-body">
-            <form method="POST" id="importForm">
-    <input type="hidden" name="insert_data" value="1">
-    
-    <div class="alert alert-warning d-flex align-items-center mb-3">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16">
-            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
-        </svg>
-        <div>
-            <strong>Important Notice:</strong> 
-            <ol class="mb-2">
-                <li>Please carefully review all data in the preview below before importing.</li>
-                <li>Double-check for accuracy, especially for:
-                    <ul>
-                        <li>Correct ITR Form Numbers</li>
-                        <li>Accurate business information</li>
-                        <li>Proper date formatting</li>
-                        <li>Complete data in all required fields</li>
-                    </ul>
+            
+            <ul class="sidebar-menu" id="sidebarMenu">
+                <li>
+                    <a href="home.php">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
                 </li>
-                <li class="fw-bold">After verifying the data is correct, click the "Import to MySQL" button below to proceed.</li>
-            </ol>
-            <div class="alert alert-info mt-2 p-2">
-                <i class="bi bi-info-circle-fill me-2"></i>
-                The import process may take several minutes depending on the data volume. Please don't close this page during import.
+                <li>
+                    <a href="import_sql_lite.php">
+                        <i class="fas fa-database"></i>
+                        <span>Import Data</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="itr_form.php ">
+                        <i class="fas fa-file-alt"></i>
+                        <span>New Entry</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="tables.php">
+                        <i class="fas fa-table"></i>
+                        <span>Inspection Tables</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="logout.php">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+        
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <div class="header" >
+                <h2>SQLite to MySQL Import Tool</h2>
             </div>
-        </div>
-    </div>
+
+            <div class="card">
+                <div class="card-header" style=" background-color:#204479; color:white;">
+                    Upload SQLite Database
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="mb-3" >
+                            <label class="form-label">Select SQLite Database File</label>
+                            <input type="file" name="sqlite_db" class="form-control" required accept=".sqlite,.db">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Upload</button>
+                    </form>
+                </div>
+            </div>
+            
+            <?php if (!empty($tables) && $sqlite) : ?>
+            <div class="card mt-4">
+                <div class="card-header bg-success text-white">
+                    Database Content Preview
+                </div>
+                <div class="card-body">
+                <form method="POST" id="importForm">
+                    <input type="hidden" name="insert_data" value="1">
+                    
+                    <div class="alert alert-warning d-flex align-items-center mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16">
+                            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                        </svg>
+                        <div>
+                            <strong>Important Notice:</strong> 
+                            <ol class="mb-2">
+                                <li>Please carefully review all data in the preview below before importing.</li>
+                                <li>Double-check for accuracy, especially for:
+                                    <ul>
+                                        <li>Correct ITR Form Numbers</li>
+                                        <li>Accurate business information</li>
+                                        <li>Proper date formatting</li>
+                                        <li>Complete data in all required fields</li>
+                                    </ul>
+                                </li>
+                                <li class="fw-bold">After verifying the data is correct, click the "Import to MySQL" button below to proceed.</li>
+                            </ol>
+                            <div class="alert alert-info mt-2 p-2">
+                                <i class="bi bi-info-circle-fill me-2"></i>
+                                The import process may take several minutes depending on the data volume. Please don't close this page during import.
+                            </div>
+                        </div>
+                    </div>
                     <button type="submit" class="btn btn-success mb-3" id="importButton">Import to MySQL</button>
                     
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -402,59 +618,92 @@ if (isset($_POST['insert_data'])) {
                         <?php endforeach; ?>
                     </div>
                 </form>
+                </div>
             </div>
-        </div>
-        <?php endif; ?>
+            <?php endif; ?>
+        </main>
     </div>
 
-    <?php
-// [Previous PHP code remains the same until the script section]
-?>
-
-<script>
-    <?php if ($success): ?>
-    document.addEventListener('DOMContentLoaded', function() {
-        const insertedRowsData = <?php echo json_encode($insertedRows); ?>;
-        const updatedRowsData = <?php echo json_encode($updatedRows); ?>;
-        const duplicateCount = <?php echo $duplicateCount; ?>;
+    <script>
+        // Toggle mobile menu
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebarMenu = document.getElementById('sidebarMenu');
         
-        // Check if there were any actual changes
-        const hasNewData = insertedRowsData.length > 0;
-        const hasUpdates = updatedRowsData.length > 0;
-        const hasOnlyDuplicates = !hasNewData && !hasUpdates && duplicateCount > 0;
-        
-        if (!hasNewData && !hasUpdates) {
-            if (hasOnlyDuplicates) {
-                // Case 1: Only duplicate records found (no updates made)
-                Swal.fire({
-                    title: 'No New Data Imported',
-                    html: `<div style="text-align: left;">
-                        <div class="alert alert-info">
-                            <h5>Duplicate Records Found</h5>
-                            <p>${duplicateCount} records already exist in the database and were not modified because:</p>
-                            <ul>
-                                <li>No changes were detected in the existing records</li>
-                                <li>Or the records were identical to existing ones</li>
-                            </ul>
-                        </div>
-                    </div>`,
-                    icon: 'info',
-                    confirmButtonText: 'OK'
-                }).then(() => {
-                    window.location.reload();
-                });
+        // Initialize menu state based on screen size
+        function initMenu() {
+            if (window.innerWidth >= 768) {
+                sidebarMenu.classList.add('active');
             } else {
-                // Case 2: No changes at all
-                Swal.fire({
-                    title: 'No Changes Detected',
-                    text: 'The database was imported successfully, but no new or modified records were found.',
-                    icon: 'info',
-                    confirmButtonText: 'OK'
-                }).then(() => {
-                    window.location.reload();
-                });
+                sidebarMenu.classList.remove('active');
             }
-        } else {
+        }
+        
+        // Set initial state
+        initMenu();
+        
+        // Toggle menu when button is clicked
+        menuToggle.addEventListener('click', function() {
+            sidebarMenu.classList.toggle('active');
+        });
+        
+        // Close menu when clicking on a link (for mobile)
+        const menuLinks = document.querySelectorAll('.sidebar-menu a');
+        menuLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth < 768) {
+                    sidebarMenu.classList.remove('active');
+                }
+            });
+        });
+        
+        // Update menu state when window is resized
+        window.addEventListener('resize', function() {
+            initMenu();
+        });
+
+        <?php if ($success): ?>
+        document.addEventListener('DOMContentLoaded', function() {
+            const insertedRowsData = <?php echo json_encode($insertedRows); ?>;
+            const updatedRowsData = <?php echo json_encode($updatedRows); ?>;
+            const duplicateCount = <?php echo $duplicateCount; ?>;
+            
+            // Check if there were any actual changes
+            const hasNewData = insertedRowsData.length > 0;
+            const hasUpdates = updatedRowsData.length > 0;
+            const hasOnlyDuplicates = !hasNewData && !hasUpdates && duplicateCount > 0;
+            
+            if (!hasNewData && !hasUpdates) {
+                if (hasOnlyDuplicates) {
+                    // Case 1: Only duplicate records found (no updates made)
+                    Swal.fire({
+                        title: 'No New Data Imported',
+                        html: `<div style="text-align: left;">
+                            <div class="alert alert-info">
+                                <h5>Duplicate Records Found</h5>
+                                <p>${duplicateCount} records already exist in the database and were not modified because:</p>
+                                <ul>
+                                    <li>No changes were detected in the existing records</li>
+                                    <li>Or the records were identical to existing ones</li>
+                                </ul>
+                            </div>
+                        </div>`,
+                        icon: 'info',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    // Case 2: No changes at all
+                    Swal.fire({
+                        title: 'No Changes Detected',
+                        text: 'The database was imported successfully, but no new or modified records were found.',
+                        icon: 'info',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                }
+            } else {
             // Case 3: Some changes were made (inserts or updates)
             let successContent = `<div style="text-align: left;">`;
             
@@ -521,8 +770,6 @@ if (isset($_POST['insert_data'])) {
                                     </thead>
                                     <tbody>`;
 
-                 
-                    
                     meaningfulUpdates.slice(0, 5).forEach(row => {
                         successContent += `
                             <tr>
@@ -562,42 +809,23 @@ if (isset($_POST['insert_data'])) {
             
             if (duplicateCount > 0) {
                 successContent += `
-                
                     <div class="alert alert-info">
                         <h5>⚠️ ${duplicateCount} Existing Records Not Modified</h5>
                         <p>These records already existed in the database and were identical to the imported data.</p>
-                    </div>`
-
-                    Swal.fire({
-                    title: 'No New Data Imported',
-                    html: `<div style="text-align: left;">
-                        <div class="alert alert-info">
-                            <h5>Duplicate Records Found</h5>
-                            <p>${duplicateCount} records already exist in the database and were not modified because:</p>
-                            <ul>
-                                <li>No changes were detected in the existing records</li>
-                                <li>Or the records were identical to existing ones</li>
-                            </ul>
-                        </div>
-                    </div>`,
-                    icon: 'info',
-                    confirmButtonText: 'OK'
-                }).then(() => {
-                    window.location.reload();
-                });
+                    </div>`;
             }
             
             successContent += `</div>`;
             
             Swal.fire({
-    title: 'Import Results',
-    html: successContent,
-    icon: (duplicateCount && !hasNewData && !hasUpdates) ? 'warning' : 'success',
-    confirmButtonText: 'OK',
-    width: '800px'
-}).then(() => {
-    window.location.reload();
-});
+                title: 'Import Results',
+                html: successContent,
+                icon: 'success',
+                confirmButtonText: 'OK',
+                width: '800px'
+            }).then(() => {
+                window.location.reload();
+            });
         }
     });
     <?php elseif (!empty($importErrors)): ?>
@@ -707,6 +935,5 @@ if (isset($_POST['insert_data'])) {
         window.history.replaceState(null, null, window.location.href);
     }
 </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,42 +1,48 @@
 <?php
 // Start the session
-session_start();
+
 
 // Include config file
 require_once "config.php";
 
 // Initialize variables
-$inspector_id = $password = $confirm_password = $full_name = $email = $contact_number = "";
+$user_id = $password = $confirm_password = $full_name = $email = $contact_number = "";
+$role = 'inspector'; // Default role
 $errors = [];
 
 // Processing form data when form is submitted
 if($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    // Validate Inspector ID
-    if(empty(trim($_POST["inspector_id"]))) {
-        $errors['inspector_id'] = "Please enter an Inspector ID.";
-    } elseif(!preg_match('/^[a-zA-Z0-9_]+$/', trim($_POST["inspector_id"]))) {
-        $errors['inspector_id'] = "ID can only contain letters, numbers, and underscores.";
+    // Validate User ID (previously Inspector ID)
+    if(empty(trim($_POST["user_id"]))) {
+        $errors['user_id'] = "Please enter a User ID.";
+    } elseif(!preg_match('/^[a-zA-Z0-9_]+$/', trim($_POST["user_id"]))) {
+        $errors['user_id'] = "ID can only contain letters, numbers, and underscores.";
     } else {
         // Prepare a select statement
-        $sql = "SELECT id FROM inspectors WHERE inspector_id = ?";
+        $sql = "SELECT id FROM user WHERE user_id = ?";
         
         if($stmt = mysqli_prepare($conn, $sql)) {
             // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "s", $param_inspector_id);
+            mysqli_stmt_bind_param($stmt, "s", $param_user_id);
             
             // Set parameters
-            $param_inspector_id = trim($_POST["inspector_id"]);
-            
+            $param_user_id = trim($_POST["user_id"]);
+            if(strlen($password) < 8) {
+    $error = "Password must be at least 8 characters";
+}
+if(!preg_match("/[A-Z]/", $password) || !preg_match("/[0-9]/", $password)) {
+    $error = "Password must contain uppercase and numbers";
+}
             // Attempt to execute the prepared statement
             if(mysqli_stmt_execute($stmt)) {
                 /* store result */
                 mysqli_stmt_store_result($stmt);
                 
                 if(mysqli_stmt_num_rows($stmt) == 1) {
-                    $errors['inspector_id'] = "This Inspector ID is already taken.";
+                    $errors['user_id'] = "This User ID is already taken.";
                 } else {
-                    $inspector_id = trim($_POST["inspector_id"]);
+                    $user_id = trim($_POST["user_id"]);
                 }
             } else {
                 $errors['database'] = "Oops! Something went wrong. Please try again later.";
@@ -80,7 +86,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         $errors['email'] = "Please enter a valid email address.";
     } else {
         // Check if email exists
-        $sql = "SELECT id FROM inspectors WHERE email = ?";
+        $sql = "SELECT id FROM user WHERE email = ?";
         
         if($stmt = mysqli_prepare($conn, $sql)) {
             mysqli_stmt_bind_param($stmt, "s", $param_email);
@@ -113,18 +119,19 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     if(empty($errors)) {
         
         // Prepare an insert statement
-        $sql = "INSERT INTO inspectors (inspector_id, password, full_name, email, contact_number) VALUES (?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO user (user_id, password, full_name, email, contact_number, role) VALUES (?, ?, ?, ?, ?, ?)";
          
         if($stmt = mysqli_prepare($conn, $sql)) {
             // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "sssss", $param_inspector_id, $param_password, $param_full_name, $param_email, $param_contact_number);
+            mysqli_stmt_bind_param($stmt, "ssssss", $param_user_id, $param_password, $param_full_name, $param_email, $param_contact_number, $param_role);
             
             // Set parameters
-            $param_inspector_id = $inspector_id;
+            $param_user_id = $user_id;
             $param_password = password_hash($password, PASSWORD_DEFAULT); // Creates a password hash
             $param_full_name = $full_name;
             $param_email = $email;
             $param_contact_number = $contact_number;
+            $param_role = $role; // Default role is 'inspector'
             
             // Attempt to execute the prepared statement
             if(mysqli_stmt_execute($stmt)) {
@@ -153,7 +160,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inspector Registration</title>
+    <title>User Registration</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -200,14 +207,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
                         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label for="reg-id" class="form-label">Inspector ID</label>
+                                    <label for="reg-id" class="form-label">User ID</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-id-card"></i></span>
-                                        <input type="text" class="form-control <?php echo (!empty($errors['inspector_id'])) ? 'is-invalid' : ''; ?>" 
-                                               id="reg-id" name="inspector_id" value="<?php echo $inspector_id; ?>" placeholder="Create your ID">
+                                        <input type="text" class="form-control <?php echo (!empty($errors['user_id'])) ? 'is-invalid' : ''; ?>" 
+                                               id="reg-id" name="user_id" value="<?php echo $user_id; ?>" placeholder="Create your ID">
                                     </div>
-                                    <?php if(!empty($errors['inspector_id'])): ?>
-                                        <div class="invalid-feedback d-block"><?php echo $errors['inspector_id']; ?></div>
+                                    <?php if(!empty($errors['user_id'])): ?>
+                                        <div class="invalid-feedback d-block"><?php echo $errors['user_id']; ?></div>
                                     <?php endif; ?>
                                 </div>
                                 

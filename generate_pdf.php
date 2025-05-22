@@ -6,7 +6,7 @@ header('Content-Type: text/html; charset=utf-8');
 header('Content-Type: application/pdf');
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET");
-header('Content-Disposition: inline; filename="business_report.pdf"');
+
 if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
     $itr_form_num = $_GET['id'];
     $sql_business_info = "SELECT * FROM businessinfo WHERE itr_form_num ='$itr_form_num'";
@@ -19,8 +19,8 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
             $pdf->AddPage();
 
             $pdf->AddFont('arialnarrow', '', 'arialnarrow.php');
-            $pdf->Image('doe.jpg', 12, 16.5, 17);
-            $pdf->Image('itrf_p1_bg.jpg', 0, 0, 216, 356); 
+            $pdf->Image('..\itr\assets\img\doe.jpg', 12, 16.5, 17);
+            $pdf->Image('..\itr\assets\img\itrf_p1_bg.jpg', 0, 0, 216, 356); 
             $pdf->SetFont('arialnarrow', '', 9);
             
               //variables data
@@ -290,7 +290,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
 
             $pdf->AddFont('arialnarrow', '', 'arialnarrow.php');
            // $pdf->Image('doe.jpg', 12, 16.5, 17);
-           $pdf->Image('itrf_p2_bg.jpg', 0, 0, 216, 356); 
+           $pdf->Image('..\itr\assets\img\itrf_p2_bg.jpg', 0, 0, 216, 356); 
             $pdf->SetFont('arialnarrow', '', 9);
             
             $secondpageborder=0;
@@ -395,136 +395,97 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
                 $pdf->Cell($headercol1 - 105, $secondpageheight, $valueprod, $secondpageborder, 0);
             }
             
-
+              
             //with and without violations -------------------------->
             $pdf->SetFont('ZapfDingbats', '', 10.5);
             $PRODUCT_YES = chr(51); // ✔ (Check mark)
-            $PRODUCT_NO = chr(032); // Blank
-            // Boolean fields array
+          
+            $booleanFields_Compliance = [ 'coc_cert','coc_posted','valid_permit_LGU','valid_permit_BFP','valid_permit_DENR','appropriate_test','week_calib','outlet_identify','pdb_entry','pdb_updated','pdb_match','ron_label','e10_label','biofuels','consume_safety','cel_warn','smoke_sign','switch_eng',
+                                          'straddle','post_unleaded','post_biodiesel','issue_receipt','non_refuse_inspect','non_refuse_sign','fixed_dispense','no_open_flame','max_length_dispense','peso_display','pump_island','lane_oriented_pump','pump_guard','m_ingress','m_edge','office_cashier','min_canopy','boundary_walls','master_switch',
+                                           'clean_rest','underground_storage','m_distance','vent','transfer_dispense','no_drum','no_hoard','under_deliver', ];
+            $allFieldsValid = true; // Assume true initially
             
-            $booleanFields_Compliance = [ 'coc_certificate', 'coc_posted', 'valid_permit_LGU', 'valid_permit_BFP', 'valid_permit_DENR', 
-            'appropriate_test', 'week_calib', 'outlet_identify', 'price_display', 'pdb_entry', 
-            'pdb_updated', 'pdb_match', 'ron_label', 'e10_label', 'biofuels', 'consumer_safety', 
-            'no_cel_warn', 'no_smoke_sign', 'switch_eng', 'no_straddle', 'non_post_unleaded', 
-            'non_post_biodiesel', 'issue_receipt', 'non_refuse_inspect', 'fixed_dispense', 
-            'no_open_flame', 'max_length_dispense', 'peso_display', 'pump_island', 
-            'lane_oriented_pump', 'pump_guard', 'm_ingress', 'm_edge', 'office_cashier', 
-            'min_canopy', 'boundary_walls', 'master_switch', 'clean_rest', 'underground_storage', 
-            'm_distance', 'vent', 'transfer_dispense', 'no_drum', 'no_hoard', 'free_tire_press', 
-            'free_water', 'basic_mechanical', 'first_aid', 'design_eval', 'electric_eval', 
-            'under_deliver'
-            ];
-            $allFieldsValid = 1;
             foreach ($booleanFields_Compliance as $field) {
-                if (!isset ($row[$field]) ||  $row[$field] == 0) { // Assuming $row contains the database row
-                    $allFieldsValid = 0;
+                if (isset($data_checklist[$field]) && $data_checklist[$field] == 0) {
+                    $allFieldsValid = false; // Set to false if any field is invalid
                     break;
                 }
             }
-            // With violation   
-            $x_add = ($allFieldsValid) ? 13  :  -32;
+            
+            // With violation adjustment
+            $x_add = ($allFieldsValid) ? 13 : -32;
+            $pdf->SetXY($headerX2ndPage - 109 - $x_add, $headerY2ndPage + 71 + $headerXpadding);
+            $pdf->Cell($headercol1 - 105, $secondpageheight, $PRODUCT_YES , $secondpageborder, 0);
+            
+            
 
-            $pdf->SetXY($headerX2ndPage -109 - $x_add, $headerY2ndPage + 71 + $headerXpadding);
-            $pdf->Cell($headercol1 - 105, $secondpageheight, $PRODUCT_YES, $secondpageborder, 0);
+
 
             
             //Violations Summary--------------------------------->
             $pdf->SetFont('arialnarrow', '', 9);
             $sql_remarks_summary = "SELECT * FROM standardcompliancechecklist WHERE itr_form_num = '$itr_form_num'";
 
-            $boolean_remarks_pairs = [
-                ['coc_cert', 'coc_cert_remarks'], ['coc_posted', 'coc_posted_remarks'],
-                ['valid_permit_LGU', 'valid_permit_LGU_remarks'],
-                ['valid_permit_BFP', 'valid_permit_BFP_remarks'],
-                ['valid_permit_DENR', 'valid_permit_DENR_remarks'],
-                ['appropriate_test', 'appropriate_test_remarks'],
-                ['week_calib', 'week_calib_remarks'],
-                ['outlet_identify', 'outlet_identify_remarks'],
-                ['price_display', 'price_display_remarks'],
-                ['pdb_entry', 'pdb_entry_remarks'],
-                ['pdb_updated', 'pdb_updated_remarks'],
-                ['pdb_match', 'pdb_match_remarks'],
-                ['ron_label', 'ron_label_remarks'],
-                ['e10_label', 'e10_label_remarks'],
-                ['biofuels', 'biofuels_remarks'],
-                ['consume_safety', 'consume_safety_remarks'],
-                ['cel_warn', 'cel_warn_remarks'],
-                ['smoke_sign', 'smoke_sign_remarks'],
-                ['switch_eng', 'switch_eng_remarks'],
-                ['straddle', 'straddle_remarks'],
-                ['post_unleaded', 'post_unleaded_remarks'],
-                ['post_biodiesel', 'post_biodiesel_remarks'],
-                ['issue_receipt', 'issue_receipt_remarks'],
-                ['non_refuse_inspect', 'non_refuse_inspect_remarks'],
-                ['fixed_dispense', 'fixed_dispense_remarks'],
-                ['no_open_flame', 'no_open_flame_remarks'],
-                ['max_length_dispense', 'max_length_dispense_remarks'],
-                ['peso_display', 'peso_display_remarks'],
-                ['pump_island', 'pump_island_remarks'],
-                ['lane_oriented_pump', 'lane_oriented_pump_remarks'],
-                ['pump_guard', 'pump_guard_remarks'],
-                ['m_ingress', 'm_ingress_remarks'],
-                ['m_edge', 'm_edge_remarks'],
-                ['office_cashier', 'office_cashier_remarks'],
-                ['min_canopy', 'min_canopy_remarks'],
-                ['boundary_walls', 'boundary_walls_remarks'],
-                ['master_switch', 'master_switch_remarks'],
-                ['clean_rest', 'clean_rest_remarks'],
-                ['underground_storage', 'underground_storage_remarks'],
-                ['m_distance', 'm_distance_remarks'],
-                ['vent', 'vent_remarks'],
-                ['transfer_dispense', 'transfer_dispense_remarks'],
-                ['no_drum', 'no_drum_remarks'],
-                ['no_hoard', 'no_hoard_remarks'],
-                ['free_tire_press', 'free_tire_press_remarks'],
-                ['free_water', 'free_water_remarks'],
-                ['basic_mechanical', 'basic_mechanical_remarks'],
-                ['first_aid', 'first_aid_remarks'],
-                ['design_eval', 'design_eval_remarks'],
-                ['electric_eval', 'electric_eval_remarks'],
-                ['under_deliver', 'under_deliver_remarks']
-            ];
+          // Violation pairs with labels and remarks fields
 
-            $result_remarks_summary = $conn->query($sql_remarks_summary);  
-            if ($result_remarks_summary === false) {
+
+// Query the database
+$sql_remarks_summary = "SELECT * FROM standardcompliancechecklist WHERE itr_form_num = '$itr_form_num'";
+$result_remarks_summary = $conn->query($sql_remarks_summary);  
+
+if ($result_remarks_summary === false) {
+    die("Query failed: " . $conn->error);
+}
+
+$data_remarks_summary = $result_remarks_summary->fetch_assoc();
+
+// Maintain the exact same cell formatting as original code
+$violation_headerY = 90; 
+$violation_headerX = 16;
+$violation_cell_width = 85;
+$violation_heightcell = 3.9;
+$violation_border = 0;
+$maxLength_violation = 200;
+
+$pdf->SetXY($violation_headerX, $violation_headerY);
+
+foreach ($violation_pairs as $pair) {
+    $boolean_column = $pair[0]; 
+    $label = $pair[1];
+    $remarks_column = $pair[2];
+
+    if (isset($data_remarks_summary[$boolean_column]) && $data_remarks_summary[$boolean_column] == 0) {
+        $violation_text = $label;
+        
+        if (isset($data_remarks_summary[$remarks_column]) && !empty($data_remarks_summary[$remarks_column])) {
+            $remark = $data_remarks_summary[$remarks_column];
+            $remark = str_replace(".", ",", $remark);
+            $violation_text .= ": " . $remark;
+        }
+        
+        // Maintain original MultiCell parameters
+        $pdf->MultiCell($violation_cell_width, $violation_heightcell, $violation_text, $violation_border, 0);
+        
+        // Maintain original position adjustment
+        $violation_headerY += $violation_heightcell;
+        $pdf->SetXY($violation_headerX, $violation_headerY);
+    }
+}
+        
+            
+            //remarks & Action Required--------------------------------->
+            $user_remarks = "SELECT * FROM summaryremarks WHERE itr_form_num ='$itr_form_num'";
+            $result_remarks = $conn->query($user_remarks);
+
+            if ($result_remarks === false) {
                 die("Query failed: " . $conn->error);
             }
+            $user_remarks = $result_remarks->fetch_assoc();
+
+
+            $user_gen_remarks = $user_remarks['user_gen_remarks'];
+            $action_required_text = $user_remarks['action_required'];
             
-            $data_remarks_summary = $result_remarks_summary->fetch_assoc();
-            $violation_headerY = 90; 
-            $violation_headerX = 16;
-            $violation_cell_width = 85;
-            $violation_heightcell = 3.9;
-            $violation_border = 0;
-            $maxLength_violation = 200;    
-            
-            $pdf->SetXY($violation_headerX, $violation_headerY);
-            
-            foreach ($boolean_remarks_pairs as $pair) {
-                $boolean_column = $pair[0]; 
-                $remarks_column = $pair[1];
-            
-                if (isset($data_remarks_summary[$boolean_column]) && $data_remarks_summary[$boolean_column] == 0) {
-                    if (isset($data_remarks_summary[$remarks_column]) && !empty($data_remarks_summary[$remarks_column])) {
-                        $remark = $data_remarks_summary[$remarks_column];
-                        $remark = str_replace(".", ",", $remark);
-                        
-                        // Output each remark in a separate cell
-                        $pdf->MultiCell($violation_cell_width, $violation_heightcell, $remark, $violation_border, 0);
-                        
-                        // Move Y position down for next remark
-                        $violation_headerY += $violation_heightcell;
-                        $pdf->SetXY($violation_headerX, $violation_headerY);
-                    }
-                }
-            }
-        
-        
-            
-            //Action Required--------------------------------->
-            $text_action = 'Post COC visibly. Maintain calibration logs. Add missing fuel labels (RON/E-10/Biofuels) and safety signs. Issue official receipts. Ensure pumps meet safety standards (6m clearance, <5.5m hoses). Establish cashier booth. Install boundary walls. Fix storage tank vents. Stop fuel hoarding. Provide first aid kit. Priority: Safety and legal compliance first. Resolve within 7 days to avoid penalties.
-';
-            $text_action2 = 'Several compliance gaps were noted, including missing/expired permits, inconsistent fuel pricing, and absent safety signage. Infrastructure shortcomings include non-compliant pump island dimensions and low canopy heights. Operational risks involve improper fuel transfer and inadequate tank venting. Additional lapses include unclean restrooms.'; 
             $action_headerY =89.5;
             $action_headerX =110;
             $action_cell_width = 90;
@@ -534,8 +495,8 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
             $maxLength_action2 = 350;
             
         
-            $truncated_action_Text1 = substr($text_action, 0,  $maxLength_action);
-            $truncated_action_Text2 = substr($text_action2, 0,  $maxLength_action2);
+            $truncated_action_Text1 = substr($user_gen_remarks, 0,  $maxLength_action);
+            $truncated_action_Text2 = substr($action_required_text, 0,  $maxLength_action2);
 
            
              $pdf->SetXY( $action_headerX, $action_headerY );

@@ -1,5 +1,14 @@
 <?php
 header('Content-Type: application/json');
+
+session_start();
+
+// Check if user is admin
+if(!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
+    exit;
+}
+
 require 'config.php';
 
 try {
@@ -11,7 +20,7 @@ try {
     
     $itrFormNum = $_POST['itr_form_num'];
     
-    // Delete related records first (to maintain referential integrity)
+    // Delete relat  records first (to maintain referential integrity)
     $tables = [
         'generalremarks',
         'productquality',

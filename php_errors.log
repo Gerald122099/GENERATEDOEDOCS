@@ -1,0 +1,46 @@
+[07-Apr-2025 04:21:13 Europe/Berlin] Database Error: Prepare failed for standardcompliancechecklist: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '[Your very long SQL statement remains exactly the same...]
+        )' at line 2
+[07-Apr-2025 04:23:28 Europe/Berlin] Database Error: Prepare failed for standardcompliancechecklist: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '[Your very long SQL statement remains exactly the same...]
+        )' at line 2
+[07-Apr-2025 05:13:54 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: Exception::__construct(): Argument #2 ($code) must be of type int, string given in C:\xampp\htdocs\itr\insert.php:16
+Stack trace:
+#0 C:\xampp\htdocs\itr\insert.php(16): Exception->__construct('Table 'standard...', 'Prepare failed', NULL)
+#1 C:\xampp\htdocs\itr\insert.php(445): DatabaseException->__construct('Column count do...', 'standardcomplia...', 'Prepare failed')
+#2 {main}
+  thrown in C:\xampp\htdocs\itr\insert.php on line 16
+[07-Apr-2025 05:14:37 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: Exception::__construct(): Argument #2 ($code) must be of type int, string given in C:\xampp\htdocs\itr\insert.php:16
+Stack trace:
+#0 C:\xampp\htdocs\itr\insert.php(16): Exception->__construct('Table 'standard...', 'Prepare failed', NULL)
+#1 C:\xampp\htdocs\itr\insert.php(445): DatabaseException->__construct('Column count do...', 'standardcomplia...', 'Prepare failed')
+#2 {main}
+  thrown in C:\xampp\htdocs\itr\insert.php on line 16
+[07-Apr-2025 05:15:42 Europe/Berlin] PHP Fatal error:  Uncaught Error: Class "DatabaseException" not found in C:\xampp\htdocs\itr\insert.php:420
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\itr\insert.php on line 420
+[07-Apr-2025 05:16:13 Europe/Berlin] PHP Fatal error:  Uncaught TypeError: Exception::__construct(): Argument #2 ($code) must be of type int, string given in C:\xampp\htdocs\itr\insert.php:16
+Stack trace:
+#0 C:\xampp\htdocs\itr\insert.php(16): Exception->__construct('Table 'standard...', 'Prepare failed', NULL)
+#1 C:\xampp\htdocs\itr\insert.php(445): DatabaseException->__construct('Column count do...', 'standardcomplia...', 'Prepare failed')
+#2 {main}
+  thrown in C:\xampp\htdocs\itr\insert.php on line 16
+[07-Apr-2025 06:12:58 Europe/Berlin] Standard Compliance Checklist Error: Remarks are required when non_refuse_sign is not checked
+[07-Apr-2025 06:12:58 Europe/Berlin] PHP Warning:  Undefined property: mysqli::$autocommit in C:\xampp\htdocs\itr\insert.php on line 438
+[07-Apr-2025 06:13:07 Europe/Berlin] Standard Compliance Checklist Error: Table 'businessinfo' operation failed: Duplicate entry '785' for key 'PRIMARY'
+[07-Apr-2025 06:13:07 Europe/Berlin] PHP Warning:  Undefined property: mysqli::$autocommit in C:\xampp\htdocs\itr\insert.php on line 438
+[07-Apr-2025 06:13:20 Europe/Berlin] Standard Compliance Checklist Error: Remarks are required when non_refuse_sign is not checked
+[07-Apr-2025 06:13:20 Europe/Berlin] PHP Warning:  Undefined property: mysqli::$autocommit in C:\xampp\htdocs\itr\insert.php on line 438
+[07-Apr-2025 06:30:30 Europe/Berlin] Standard Compliance Checklist Error: Remarks are required when non_refuse_sign is not checked
+[07-Apr-2025 06:30:30 Europe/Berlin] PHP Warning:  Undefined property: mysqli::$autocommit in C:\xampp\htdocs\itr\insert.php on line 438
+[07-Apr-2025 06:33:43 Europe/Berlin] Standard Compliance Checklist Error: Remarks are required when price_display is not checked
+[07-Apr-2025 06:33:43 Europe/Berlin] PHP Warning:  Undefined property: mysqli::$autocommit in C:\xampp\htdocs\itr\insert.php on line 438
+[07-Apr-2025 06:35:20 Europe/Berlin] Standard Compliance Checklist Error: Table 'standardcompliancechecklist' operation failed: Column count doesn't match value count at row 1
+[07-Apr-2025 06:35:20 Europe/Berlin] PHP Warning:  Undefined property: mysqli::$autocommit in C:\xampp\htdocs\itr\insert.php on line 435
+[07-Apr-2025 06:35:29 Europe/Berlin] Standard Compliance Checklist Error: Table 'standardcompliancechecklist' operation failed: Column count doesn't match value count at row 1
+[07-Apr-2025 06:35:29 Europe/Berlin] PHP Warning:  Undefined property: mysqli::$autocommit in C:\xampp\htdocs\itr\insert.php on line 435
+[07-Apr-2025 06:40:23 Europe/Berlin] Standard Compliance Checklist Error: Table 'standardcompliancechecklist' operation failed: Column count doesn't match value count at row 1
+[07-Apr-2025 06:40:23 Europe/Berlin] PHP Warning:  Undefined property: mysqli::$autocommit in C:\xampp\htdocs\itr\insert.php on line 434
+[07-Apr-2025 06:41:26 Europe/Berlin] Standard Compliance Checklist Error: Remarks are required when non_refuse_sign is not checked
+[07-Apr-2025 06:41:26 Europe/Berlin] PHP Warning:  Undefined property: mysqli::$autocommit in C:\xampp\htdocs\itr\insert.php on line 437
+[07-Apr-2025 06:46:43 Europe/Berlin] Standard Compliance Checklist Error: Table 'standardcompliancechecklist' operation failed: Column count doesn't match value count at row 1
+[07-Apr-2025 06:46:43 Europe/Berlin] PHP Warning:  Undefined property: mysqli::$autocommit in C:\xampp\htdocs\itr\insert.php on line 438

@@ -1,441 +1,537 @@
-<?php
-session_start();
-
-if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
-    header("location: login.php");
-    exit;
-}
-
-// Determine current page
-$current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo ucfirst($current_page); ?> - Inspector Portal</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>FuelSafe | Retail Fuel Inspection System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         :root {
-            --primary-color: #4e73df;
-            --secondary-color: #f8f9fc;
-            --accent-color: #2e59d9;
-            --sidebar-width: 250px;
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #1a252f;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
-            padding-top: 56px;
-            background-color: #f8f9fc;
+            background-color: #f5f7fa;
+            color: var(--dark);
         }
         
-        .navbar-brand {
-            font-weight: 800;
-            letter-spacing: 0.5px;
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
         
-        .nav-pills .nav-link.active {
-            background-color: var(--primary-color);
-        }
-        
+        /* Sidebar Styles */
         .sidebar {
-            background: white;
-            border-right: 1px solid #e3e6f0;
-            height: calc(100vh - 56px);
-            position: fixed;
-            top: 56px;
-            width: var(--sidebar-width);
-            overflow-y: auto;
-            transition: all 0.3s;
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            position: relative;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
             z-index: 1000;
         }
         
-        .main-content {
-            margin-left: var(--sidebar-width);
-            padding: 20px;
-            transition: all 0.3s;
+        .sidebar-header {
+            padding: 15px 20px;
+            background: var(--dark);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
         
-        .card {
+        .sidebar-header h3 {
+            margin-left: 10px;
+            font-weight: 600;
+        }
+        
+        .menu-toggle {
+            display: block;
+            background: none;
             border: none;
-            border-radius: 0.35rem;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
-            margin-bottom: 1.5rem;
-            transition: transform 0.2s;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
         }
         
-        .card:hover {
-            transform: translateY(-2px);
+        .sidebar-menu {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
         }
         
-        .card-header {
-            background-color: #f8f9fc;
-            border-bottom: 1px solid #e3e6f0;
-            font-weight: 700;
-            padding: 1rem 1.35rem;
+        .sidebar-menu.active {
+            max-height: 1000px;
+            padding: 10px 0;
+        }
+        
+        .sidebar-menu li {
+            list-style: none;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--light);
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 15px;
+        }
+        
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .sidebar-menu a i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            padding: 15px;
+            background-color: #f5f7fa;
+        }
+        
+        .header {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 15px;
+        }
+        
+        .header h2 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .user-actions {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            justify-content: flex-end;
+        }
+        
+        .logout-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+        
+        .logout-btn i {
+            margin-right: 5px;
+        }
+        
+        /* Dashboard Content */
+        .dashboard-content {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            min-height: calc(100vh - 150px);
+        }
+        
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .welcome-section h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .welcome-section p {
+            color: #7f8c8d;
+            font-size: 0.95rem;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
         }
         
         .stat-card {
-            border-left: 4px solid;
-            transition: all 0.3s;
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            border-top: 4px solid var(--secondary);
         }
         
-        .stat-card:hover {
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        .stat-card h3 {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
         }
         
-        .border-left-primary {
-            border-left-color: var(--primary-color);
-        }
-        
-        .border-left-success {
-            border-left-color: #1cc88a;
-        }
-        
-        .border-left-info {
-            border-left-color: #36b9cc;
-        }
-        
-        .border-left-warning {
-            border-left-color: #f6c23e;
-        }
-        
-        .page-title {
+        .stat-card p {
+            font-size: 1.5rem;
             font-weight: 600;
-            color: #2e3d4f;
+            color: var(--primary);
         }
         
-        @media (max-width: 768px) {
-            .sidebar {
-                margin-left: -var(--sidebar-width);
+        .recent-activities {
+            margin-top: 25px;
+        }
+        
+        .recent-activities h2 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .activity-list {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .activity-item {
+            display: flex;
+            flex-direction: column;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-main {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .activity-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: rgba(52, 152, 219, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            color: var(--secondary);
+            flex-shrink: 0;
+        }
+        
+        .activity-details {
+            flex: 1;
+        }
+        
+        .activity-details h4 {
+            font-size: 0.95rem;
+            margin-bottom: 3px;
+            color: var(--primary);
+        }
+        
+        .activity-details p {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+        
+        .activity-time {
+            font-size: 0.75rem;
+            color: #95a5a6;
+            align-self: flex-end;
+        }
+        
+        /* Media Queries */
+        @media (min-width: 576px) {
+            .header {
+                flex-direction: row;
+                align-items: center;
             }
             
-            .sidebar.active {
-                margin-left: 0;
+            .header h2 {
+                margin-bottom: 0;
+            }
+            
+            .activity-item {
+                flex-direction: row;
+                align-items: center;
+                padding: 15px 20px;
+            }
+            
+            .activity-main {
+                margin-bottom: 0;
+                flex: 1;
+            }
+            
+            .activity-time {
+                margin-left: 15px;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .container {
+                flex-direction: row;
+            }
+            
+            .sidebar {
+                width: 250px;
+                height: 100vh;
+                position: sticky;
+                top: 0;
+            }
+            
+            .menu-toggle {
+                display: none;
+            }
+            
+            .sidebar-menu {
+                max-height: none;
+                padding: 20px 0;
+                display: block !important;
             }
             
             .main-content {
-                margin-left: 0;
+                padding: 20px;
             }
             
-            .main-content.active {
-                margin-left: var(--sidebar-width);
+            .header {
+                padding: 15px 20px;
+            }
+            
+            .welcome-section h1 {
+                font-size: 2rem;
+            }
+            
+            .welcome-section p {
+                font-size: 1.1rem;
             }
         }
         
-        /* Animation for content loading */
-        .fade-in {
-            animation: fadeIn 0.3s ease-in;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .report-table {
-            font-size: 0.85rem;
-        }
-        
-        .report-table th {
-            white-space: nowrap;
-            position: sticky;
-            top: 0;
-            background: white;
-        }
-        
-        .chart-container {
-            position: relative;
-            height: 300px;
-            margin-bottom: 2rem;
+        @media (min-width: 992px) {
+            .welcome-section h1 {
+                font-size: 2.2rem;
+            }
+            
+            .stats-cards {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 20px;
+            }
+            
+            .stat-card {
+                padding: 20px;
+            }
+            
+            .stat-card p {
+                font-size: 1.8rem;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Top Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm fixed-top">
-        <div class="container-fluid">
-            <button class="navbar-toggler me-2" type="button" id="sidebarToggle">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <a class="navbar-brand fw-bold" href="#">
-            Inspector Portal
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTop">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarTop">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user-circle me-1"></i>
-                            <span class="d-none d-lg-inline"><?php echo htmlspecialchars($_SESSION["full_name"]); ?></span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Profile</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-cogs me-2"></i> Settings</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="logout.php"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
-                        </ul>
-                    </li>
-                </ul>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div style="display: flex; align-items: center;">
+                    <i class="fas fa-gas-pump fa-2x" style="color: var(--secondary);"></i>
+                    <h3>FuelSafe</h3>
+                </div>
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
             </div>
-        </div>
-    </nav>
-
-    <!-- Main Container -->
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar Navigation -->
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar">
-                <div class="position-sticky pt-3">
-                    <div class="text-center mb-4">
-                        <img src="https://via.placeholder.com/100" class="rounded-circle mb-2" width="80" alt="Profile">
-                        <h6 class="fw-bold"><?php echo htmlspecialchars($_SESSION["full_name"]); ?></h6>
-                        <small class="text-muted"><?php echo htmlspecialchars($_SESSION["inspector_id"]); ?></small>
-                    </div>
-                    
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                          <a class="nav-link <?php echo $current_page == 'dashboard' ? 'active' : ''; ?>" href="itrform.php"> 
-                                <i class="fas fa-fw fa-tachometer-alt me-2"></i>
-                                Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link <?php echo $current_page == 'inspections' ? 'active' : ''; ?>" href="welcome.php?page=inspections">
-                                <i class="fas fa-fw fa-clipboard-check me-2"></i>
-                                Inspections
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link <?php echo $current_page == 'reports' ? 'active' : ''; ?>" href="testsqlite.php?page=reports">
-                                <i class="fas fa-fw fa-chart-bar me-2"></i>
-                                Reports
-                            </a>
-                        </li>
-                    </ul>
-                    
-                    <hr class="my-3">
-                    
-                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mb-1 text-muted text-uppercase">
-                        <span>Account</span>
-                    </h6>
-                    <ul class="nav flex-column mb-2">
-                        <li class="nav-item">
-                            <a class="nav-link <?php echo $current_page == 'profile' ? 'active' : ''; ?>" href="welcome.php?page=profile">
-                                <i class="fas fa-fw fa-user me-2"></i>
-                                Profile
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link <?php echo $current_page == 'settings' ? 'active' : ''; ?>" href="welcome.php?page=settings">
-                                <i class="fas fa-fw fa-cog me-2"></i>
-                                Settings
-                            </a>
-                        </li>
-                    </ul>
+            
+            <ul class="sidebar-menu" id="sidebarMenu">
+                <li>
+                    <a href="home.html" class="active">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="import_sql_lite.php">
+                        <i class="fas fa-database"></i>
+                        <span>Import Data</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="itr_form.php">
+                        <i class="fas fa-file-alt"></i>
+                        <span>ITR Form</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="tables.html">
+                        <i class="fas fa-table"></i>
+                        <span>Inspection Tables</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="logout.php">
+                         <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+        
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <div class="header">
+                <h2>Welcome to Fuel Inspection System</h2>
+        
+            </div>
+            
+            <div class="dashboard-content">
+                <div class="welcome-section">
+                    <h1>Retail Fuel Outlet Compliance Dashboard</h1>
+                    <p>Monitor, manage, and maintain compliance across all retail fuel outlets with our comprehensive inspection system</p>
                 </div>
-            </nav>
-
-            <!-- Main Content -->
-              <!-- Main Content -->
-              <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2 page-title"><?php echo ucfirst($current_page); ?></h1>
-                    <div class="btn-toolbar mb-2 mb-md-0">
-                        <?php if($current_page == 'inspections'): ?>
-                        <!-- [Previous inspections button group remains the same] -->
-                        <?php elseif($current_page == 'reports'): ?>
-                        <div class="btn-group me-2">
-                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="exportReport()">
-                                <i class="fas fa-file-export me-1"></i> Export
-                            </button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="printReport()">
-                                <i class="fas fa-print me-1"></i> Print
-                            </button>
-                        </div>
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="reportDropdown" data-bs-toggle="dropdown">
-                                <i class="fas fa-plus me-1"></i> Generate Report
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#" onclick="generateReport('daily')">Daily Summary</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="generateReport('weekly')">Weekly Summary</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="generateReport('monthly')">Monthly Summary</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#" onclick="generateReport('custom')">Custom Report</a></li>
-                            </ul>
-                        </div>
-                        <?php endif; ?>
+                
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <h3>Total Inspections</h3>
+                        <p>1,248</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Compliance Rate</h3>
+                        <p>92%</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Pending Actions</h3>
+                        <p>18</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Outlets Monitored</h3>
+                        <p>347</p>
                     </div>
                 </div>
-
-                <?php if($current_page == 'dashboard'): ?>
-                <!-- Dashboard Content -->
-                <div class="fade-in">
-                    <!-- Welcome Card -->
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <i class="fas fa-info-circle me-1"></i>
-                            Welcome
-                        </div>
-                        <div class="card-body">
-                            <div class="alert alert-success">
-                                <i class="fas fa-check-circle me-2"></i> Welcome back, <?php echo htmlspecialchars($_SESSION["full_name"]); ?>!
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-xl-3 col-md-6 mb-4">
-                                    <div class="card stat-card border-left-primary h-100">
-                                        <div class="card-body">
-                                            <div class="row no-gutters align-items-center">
-                                                <div class="col mr-2">
-                                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                        Pending Inspections</div>
-                                                    <div class="h5 mb-0 font-weight-bold text-gray-800">4</div>
-                                                </div>
-                                                <div class="col-auto">
-                                                    <i class="fas fa-calendar fa-2x text-gray-300"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                
+                <div class="recent-activities">
+                    <h2>Recent Activities</h2>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-main">
+                                <div class="activity-icon">
+                                    <i class="fas fa-check-circle"></i>
                                 </div>
-                                
-                                <div class="col-xl-3 col-md-6 mb-4">
-                                    <div class="card stat-card border-left-success h-100">
-                                        <div class="card-body">
-                                            <div class="row no-gutters align-items-center">
-                                                <div class="col mr-2">
-                                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                                        Completed Inspections</div>
-                                                    <div class="h5 mb-0 font-weight-bold text-gray-800">12</div>
-                                                </div>
-                                                <div class="col-auto">
-                                                    <i class="fas fa-check-circle fa-2x text-gray-300"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-xl-3 col-md-6 mb-4">
-                                    <div class="card stat-card border-left-info h-100">
-                                        <div class="card-body">
-                                            <div class="row no-gutters align-items-center">
-                                                <div class="col mr-2">
-                                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                                        Reports Generated</div>
-                                                    <div class="h5 mb-0 font-weight-bold text-gray-800">8</div>
-                                                </div>
-                                                <div class="col-auto">
-                                                    <i class="fas fa-file-alt fa-2x text-gray-300"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-xl-3 col-md-6 mb-4">
-                                    <div class="card stat-card border-left-warning h-100">
-                                        <div class="card-body">
-                                            <div class="row no-gutters align-items-center">
-                                                <div class="col mr-2">
-                                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                                        Messages</div>
-                                                    <div class="h5 mb-0 font-weight-bold text-gray-800">3</div>
-                                                </div>
-                                                <div class="col-auto">
-                                                    <i class="fas fa-comments fa-2x text-gray-300"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div class="activity-details">
+                                    <h4>Inspection Completed</h4>
+                                    <p>Shell Station #45 - Full compliance</p>
                                 </div>
                             </div>
+                            <div class="activity-time">2 hours ago</div>
                         </div>
-                    </div>
-                </div>
-                <?php elseif($current_page == 'inspections'): ?>
-                <!-- Inspections Content -->
-                <div class="fade-in">
-                    <div class="card mb-4">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="fas fa-clipboard-check me-1"></i>
-                                Inspection Records
+                        <div class="activity-item">
+                            <div class="activity-main">
+                                <div class="activity-icon">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="activity-details">
+                                    <h4>Non-compliance Detected</h4>
+                                    <p>BP Outlet #12 - Storage tank issue</p>
+                                </div>
                             </div>
-                            <div class="d-flex">
-                                <input type="text" class="form-control form-control-sm me-2" placeholder="Search inspections..." style="width: 200px;">
-                                <button class="btn btn-sm btn-outline-secondary">
-                                    <i class="fas fa-filter"></i>
-                                </button>
+                            <div class="activity-time">1 day ago</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-main">
+                                <div class="activity-icon">
+                                    <i class="fas fa-file-import"></i>
+                                </div>
+                                <div class="activity-details">
+                                    <h4>Data Imported</h4>
+                                    <p>New inspection records from mobile app</p>
+                                </div>
                             </div>
+                            <div class="activity-time">2 days ago</div>
                         </div>
-                        <div class="card-body">
-                            <?php include('tables.html'); ?>
-                        </div>
-                    </div>
-                </div>
-                <?php else: ?>
-                <!-- Default Content for other pages -->
-                <div class="fade-in">
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <i class="fas fa-fw fa-<?php 
-                                echo $current_page == 'reports' ? 'chart-bar' : 
-                                    ($current_page == 'profile' ? 'user' : 'cog'); 
-                            ?> me-1"></i>
-                            <?php echo ucfirst($current_page); ?>
-                        </div>
-                        <div class="card-body">
-                            <p>This is the <?php echo $current_page; ?> page content. Add your specific content here.</p>
+                        <div class="activity-item">
+                            <div class="activity-main">
+                                <div class="activity-icon">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="activity-details">
+                                    <h4>New Inspector Added</h4>
+                                    <p>John Smith joined the inspection team</p>
+                                </div>
+                            </div>
+                            <div class="activity-time">3 days ago</div>
                         </div>
                     </div>
                 </div>
-                <?php endif; ?>
-            </main>
-        </div>
+            </div>
+        </main>
     </div>
 
-    <!-- Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom JS -->
     <script>
-        // Enable tooltips
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        });
+        // Toggle mobile menu
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebarMenu = document.getElementById('sidebarMenu');
         
-        // Toggle sidebar on mobile
-        document.getElementById('sidebarToggle').addEventListener('click', function() {
-            document.getElementById('sidebar').classList.toggle('active');
-            document.querySelector('.main-content').classList.toggle('active');
-        });
-        
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', function(event) {
-            const sidebar = document.getElementById('sidebar');
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            
-            if (window.innerWidth < 768 && 
-                !sidebar.contains(event.target) && 
-                !sidebarToggle.contains(event.target) &&
-                sidebar.classList.contains('active')) {
-                sidebar.classList.remove('active');
-                document.querySelector('.main-content').classList.remove('active');
-            }
-        });
-        
-        // Resize handler
-        window.addEventListener('resize', function() {
+        // Initialize menu state based on screen size
+        function initMenu() {
             if (window.innerWidth >= 768) {
-                document.getElementById('sidebar').classList.remove('active');
-                document.querySelector('.main-content').classList.remove('active');
+                sidebarMenu.classList.add('active');
+            } else {
+                sidebarMenu.classList.remove('active');
             }
+        }
+        
+        // Set initial state
+        initMenu();
+        
+        // Toggle menu when button is clicked
+        menuToggle.addEventListener('click', function() {
+            sidebarMenu.classList.toggle('active');
+        });
+        
+        // Close menu when clicking on a link (for mobile)
+        const menuLinks = document.querySelectorAll('.sidebar-menu a');
+        menuLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth < 768) {
+                    sidebarMenu.classList.remove('active');
+                }
+            });
+        });
+        
+        // Update menu state when window is resized
+        window.addEventListener('resize', function() {
+            initMenu();
         });
     </script>
 </body>
