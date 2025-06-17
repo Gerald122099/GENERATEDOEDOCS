@@ -83,13 +83,70 @@ $violation_pairs = [
     ['transfer_dispense', 's.1 Transfer/dispensing on approved containers only', 'transfer_dispense_remarks'],
     ['no_drum', 's.2 No Drumming / "Bote-Bote" of Liquid Fuels', 'no_drum_remarks'],
     ['no_hoard', 't.1 No Hoarding', 'no_hoard_remarks'],
-    ['free_tire_press', 'u.1 Offers free tire pressure air filling', 'free_tire_press_remarks'],
-    ['free_water', 'u.2 Offers free water for radiator', 'free_water_remarks'],
-    ['basic_mechanical', 'u.3 Basic mechanical services', 'basic_mechanical_remarks'],
-    ['first_aid', 'u.4 First aid kits', 'first_aid_remarks'],
-    ['design_eval', 'u.5 Designated evacuation assembly area', 'design_eval_remarks'],
-    ['electric_eval', 'u.6 Electric vehicle charging facility', 'electric_eval_remarks'],
     ['under_deliver', 'Under Deliver', 'under_deliver_remarks']
 ];
 
+
+
+function logout() {
+    // Start the session if not already started
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
+    // Unset all session variables
+    $_SESSION = array();
+    
+    // Destroy the session
+    session_destroy();
+    
+    // Redirect to login page or home page
+    header("Location: home.php"); // Change this to your desired redirect location
+    exit();
+}
+
+
+function DeleteEntry(){
+try {
+    $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
+    // Start transaction
+    $conn->beginTransaction();
+    
+    $itrFormNum = $_POST['itr_form_num'];
+    
+    // Delete relat  records first (to maintain referential integrity)
+    $tables = [
+        'generalremarks',
+        'productquality',
+        'productqualitycont',
+        'standardcompliancechecklist',
+        'suppliersinfo',
+        'summaryremarks'
+    ];
+    
+    foreach ($tables as $table) {
+        $stmt = $conn->prepare("DELETE FROM $table WHERE itr_form_num = ?");
+        $stmt->execute([$itrFormNum]);
+    }
+    
+    // Finally delete the business info
+    $stmt = $conn->prepare("DELETE FROM businessinfo WHERE itr_form_num = ?");
+    $stmt->execute([$itrFormNum]);
+    
+    // Commit transaction
+    $conn->commit();
+    
+    echo json_encode(['success' => true]);
+    
+} catch(PDOException $e) {
+    $conn->rollBack();
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+}
+
+$conn = null;
+}
 ?>
+
+

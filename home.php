@@ -1,41 +1,46 @@
 <?php
-
 require "config.php";
 checkLogin();
 allowAccess();
 
-
-
-
-// Query to count all itr_form_num entries in businessinfo table
-$sql = "SELECT COUNT(itr_form_num) AS total_inspections FROM businessinfo";
-$result = $conn->query($sql);
-
-if ($result) {
-    $row = $result->fetch_assoc();
-    $total_inspections = $row['total_inspections'];
-} else {
-    $total_inspections = 0; // Default value if query fails
+if (isset($_GET['action']) && $_GET['action'] === 'logout') {
+    logout();
 }
 
-// Fetch upcoming inspections (for calendar)
+// Optimized COUNT query
+$total_inspections = 0;
+$sql = "SELECT COUNT(1) AS total_inspections FROM businessinfo";
+if ($result = $conn->query($sql)) {
+    $row = $result->fetch_assoc();
+    $total_inspections = $row['total_inspections'];
+    $result->free();
+}
+
+// Optimized upcoming inspections query
 $upcoming_inspections = [];
-$sql_upcoming = "SELECT * FROM inspections WHERE inspection_date >= CURDATE() ORDER BY inspection_date ASC LIMIT 5";
-$result_upcoming = $conn->query($sql_upcoming);
-if ($result_upcoming && $result_upcoming->num_rows > 0) {
+$sql_upcoming = "SELECT location, inspector, inspection_date 
+                 FROM inspections 
+                 WHERE inspection_date >= CURDATE() 
+                 ORDER BY inspection_date ASC 
+                 LIMIT 5";
+if ($result_upcoming = $conn->query($sql_upcoming)) {
     while($row = $result_upcoming->fetch_assoc()) {
         $upcoming_inspections[] = $row;
     }
+    $result_upcoming->free();
 }
 
-// Fetch announcements
+// Optimized announcements query
 $announcements = [];
-$sql_announcements = "SELECT * FROM announcements ORDER BY created_at DESC LIMIT 5";
-$result_announcements = $conn->query($sql_announcements);
-if ($result_announcements && $result_announcements->num_rows > 0) {
+$sql_announcements = "SELECT title, content, created_at 
+                      FROM announcements 
+                      ORDER BY created_at DESC 
+                      LIMIT 5";
+if ($result_announcements = $conn->query($sql_announcements)) {
     while($row = $result_announcements->fetch_assoc()) {
         $announcements[] = $row;
     }
+    $result_announcements->free();
 }
 
 $conn->close();
@@ -46,10 +51,15 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FuelSafe | Retail Fuel Inspection System</title>
+    <title>CoMDiMS | Home</title>
     <link rel="icon" type="image/x-icon" href="..\itr\assets\img\inspectlogo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
+     <link rel="stylesheet" href="globalcss.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Russo+One&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #2c3e50;
@@ -78,85 +88,12 @@ $conn->close();
             min-height: 100vh;
         }
         
-        /* Sidebar Styles */
-        .sidebar {
-            width: 100%;
-            background: var(--primary);
-            color: white;
-            position: relative;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-        }
-        
-        .sidebar-header {
-            padding: 15px 20px;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .sidebar-header h3 {
-            margin-left: 10px;
-            font-size: 1.5rem;
-            font-weight: 200;
-            color: rgb(24, 15, 103);
-            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-        }
-        
-        .menu-toggle {
-            display: block;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 5px;
-        }
-        
-        .sidebar-menu {
-            padding: 0;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-        }
-        
-        .sidebar-menu.active {
-            max-height: 1000px;
-            padding: 10px 0;
-        }
-        
-        .sidebar-menu li {
-            list-style: none;
-        }
-        
-        .sidebar-menu a {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            color: var(--light);
-            text-decoration: none;
-            transition: all 0.3s;
-            font-size: 15px;
-        }
-        
-        .sidebar-menu a:hover, .sidebar-menu a.active {
-            background: rgba(255, 255, 255, 0.1);
-            border-left: 4px solid var(--secondary);
-        }
-        
-        .sidebar-menu a i {
-            margin-right: 10px;
-            font-size: 18px;
-        }
-        
         /* Main Content Styles */
-        .main-content {
+       .main-content {
             flex: 1;
             padding: 15px;
             background-color: #f5f7fa;
         }
-        
         .header {
             display: flex;
             flex-direction: column;
@@ -682,7 +619,7 @@ $conn->close();
             <div class="sidebar-header">
                 <div style="display: flex; align-items: center;">
                     <img src="..\itr\assets\img\inspectlogo.png" alt="Logo" class="mb-3" width="65px">
-                    <h3>DataSpect</h3>
+                   <h3 style="font-family: 'Russo One', sans-serif;">CoMDiMS</h3>
                 </div>
                 <button class="menu-toggle" id="menuToggle">
                     <i class="fas fa-bars"></i>
@@ -704,7 +641,7 @@ $conn->close();
                 </li>
                 <li>
                      <a href="itr_form.php" >
-                        <i class="fas fa-file-alt"></i>
+                        <i class="bi bi-file-earmark-plus-fill"></i>
                         <span>New Entry</span>
                     </a>
                 </li>
@@ -714,14 +651,19 @@ $conn->close();
                         <span>Inspection Tables</span>
                     </a>
                 </li>
-                   <li>
-                    <a href="admin_panel.php">
-                        <i class="fas fa-table"></i>
-                        <span>Admin Panel</span>
-                    </a>
-                </li>
+              <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
+    echo '
+    <li>
+        <a href="admin_panel.php">
+            <i class="fa-solid fa-user-tie"></i>
+            <span>Admin Panel</span>
+        </a>
+    </li>
+    ';
+}
+?>
                 <li>
-                    <a href="logout.php">
+                      <a href="?action=logout">
                          <i class="fa-solid fa-right-from-bracket"></i>
                         <span>Logout</span>
                     </a>
@@ -732,13 +674,13 @@ $conn->close();
         <!-- Main Content Area -->
         <main class="main-content">
             <div class="header">
-                <h2>Welcome to Fuel Inspection System</h2>
+                <h2>Welcome ---- <?php echo '<i class="fas fa-user"></i> <span>' . $_SESSION['role'] . '</span></a></li>'; ?> </h2> 
             
             </div>
             
             <div class="dashboard-content">
                 <div class="welcome-section">
-                    <h1>Retail Fuel Outlet Compliance Dashboard</h1>
+                    <h1>Compliance Monitoring Digital Management System</h1>
                     <p>Monitor, manage, and maintain compliance across all retail fuel outlets with our comprehensive inspection system</p>
                 </div>
                 
@@ -939,6 +881,8 @@ $conn->close();
             </form>
         </div>
     </div>
+ </main>
+
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <script>

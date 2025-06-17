@@ -101,9 +101,9 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
         //Outlet Classif
         $pdf->SetFont('ZapfDingbats', '', 10.5);
         $outletClassifications = [
-            'COCO' => 0,  
-            'CODO' => 12,  
-            'DODO' => 23,  
+            'COCO (Company Owned Company Operated)' => 0,  
+            'CODO (Company Owned Dealer Operated)' => 12,  
+            'DODO (Dealer Owned Dealer Operated)' => 23,  
         ];
         
         $outletclassif = $data_business_info['outlet_class'];
@@ -302,8 +302,8 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
              $pdf->SetTextColor(1,1,1);
              $pdf->SetXY( $headerX2ndPage,   $headerY2ndPage + $headerXpadding ); 
              $pdf->Cell( $headercol1 - 80 ,  $secondpageheight, $itr_form_num ,  $secondpageborder, 0);
-             $pdf->SetXY( $headerX2ndPage,  $headerY2ndPage+3.5 + $headerXpadding ); 
-             $pdf->Cell( $headercol1 - 80,  $secondpageheight, $itr_form_num ,  $secondpageborder, 0);
+            /* $pdf->SetXY( $headerX2ndPage,  $headerY2ndPage+3.5 + $headerXpadding ); 
+             $pdf->Cell( $headercol1 - 80,  $secondpageheight, $itr_form_num ,  $secondpageborder, 0);*/
 
             //allowedd sampling prodcut quality--------------------------------->
             $pdf->SetFont('arialnarrow', '', 9);
@@ -473,7 +473,7 @@ foreach ($violation_pairs as $pair) {
 }
         
             
-            //remarks & Action Required--------------------------------->
+                    // Fetch from summaryremarks table
             $user_remarks = "SELECT * FROM summaryremarks WHERE itr_form_num ='$itr_form_num'";
             $result_remarks = $conn->query($user_remarks);
 
@@ -482,21 +482,31 @@ foreach ($violation_pairs as $pair) {
             }
             $user_remarks = $result_remarks->fetch_assoc();
 
+            // Fetch from generalremarks table
+            $general_remarks_query = "SELECT * FROM generalremarks WHERE itr_form_num ='$itr_form_num'";
+            $result_general_remarks = $conn->query($general_remarks_query);
 
+            if ($result_general_remarks === false) {
+                die("Query failed: " . $conn->error);
+            }
+            $general_remarks = $result_general_remarks->fetch_assoc();
+
+            // Combine data from both tables as needed
             $user_gen_remarks = $user_remarks['user_gen_remarks'];
             $action_required_text = $user_remarks['action_required'];
-            
-            $action_headerY =89.5;
-            $action_headerX =110;
+            $remarks = $general_remarks['remarks'];
+            $act_remarks = $user_gen_remarks . " " . $action_required_text;
+
+            $action_headerY = 89.5;
+            $action_headerX = 110;
             $action_cell_width = 90;
             $action_heightcell = 3.9;
             $action_border = 0;
             $maxLength_action = 420;  ////action re
             $maxLength_action2 = 350;
-            
-        
-            $truncated_action_Text1 = substr($user_gen_remarks, 0,  $maxLength_action);
-            $truncated_action_Text2 = substr($action_required_text, 0,  $maxLength_action2);
+
+            $truncated_action_Text1 = substr($act_remarks, 0, $maxLength_action);
+            $truncated_action_Text2 = substr($user_gen_remarks, 0, $maxLength_action2);
 
            
              $pdf->SetXY( $action_headerX, $action_headerY );

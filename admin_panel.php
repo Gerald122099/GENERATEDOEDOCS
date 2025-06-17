@@ -1,9 +1,11 @@
 <?php
-require 'config.php';
+require "config.php";
 checkLogin();
-requireAdmin();
+allowAccess();
 
-
+if (isset($_GET['action']) && $_GET['action'] === 'logout') {
+    logout();
+}
 
 
 
@@ -132,326 +134,502 @@ if (isset($_POST['add'])) {
 // Fetch user data
 $sql = "SELECT * FROM user";
 $result = $conn->query($sql);
+
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>User Management</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COMDIMS | Admin Panel</title>
+    <link rel="icon" type="image/x-icon" href="..\itr\assets\img\inspectlogo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="globalcss.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Russo+One&display=swap" rel="stylesheet">
+
     <style>
-        body {
-            padding: 20px;
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #1a252f;
         }
-        .action-buttons a, .action-buttons button {
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+
+        .admin-header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-header h1 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .action-buttons .btn {
             margin-right: 5px;
         }
-   
 
-    
+        .table-responsive {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 15px;
+        }
 
-/* For Bootstrap Icons (if using) */
-@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css");
+        .table thead {
+            background-color: var(--primary);
+            color: white;
+        }
 
-/* Modal nav tabs styling */
-.modal-nav-tabs {
-    background-color: #f8f9fa;
-    border-radius: 6px 6px 0 0;
-}
+        .table th {
+            font-weight: 500;
+        }
 
-.modal-nav-tabs .nav-link {
-    color: #495057 !important;
-    font-weight: 500;
-    border: 1px solid transparent;
-    border-bottom: none;
-    margin: 0;
-    border-radius: 0;
-}
+        .badge {
+            font-weight: 500;
+            padding: 5px 10px;
+        }
 
-.modal-nav-tabs .nav-link:hover {
-    background-color: #e9ecef;
-    color: #212529 !important;
-}
+        .status-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            animation: fadeInOut 3s ease-in-out;
+        }
 
-.modal-nav-tabs .nav-link.active {
-    background-color: white;
-    color: #4361ee !important;
-    border-color: #dee2e6;
-    border-bottom-color: white !important;
-    font-weight: 500;
-}
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { opacity: 0; }
+        }
 
-.modal-nav-tabs .nav-item:first-child .nav-link {
-    border-radius: 6px 0 0 0;
-}
+        /* Modal styling */
+        .modal-content {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
 
-.modal-nav-tabs .nav-item:last-child .nav-link {
-    border-radius: 0 6px 0 0;
-}
+        .modal-header {
+            background-color: var(--primary);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+        }
 
+        .modal-title {
+            font-weight: 500;
+        }
 
-@media (min-width: 992px) {
-    .stats-cards {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-    }
-    
-    .stat-card {
-        padding: 20px;
-    }
-    
-    .stat-card p {
-        font-size: 1.8rem;
-    }
-}
+        .btn-close {
+            filter: invert(1);
+        }
 
-
-
-
-
-
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .action-buttons {
+                margin-top: 15px;
+                width: 100%;
+            }
+            
+            .action-buttons .btn {
+                margin-bottom: 5px;
+                width: 100%;
+            }
+            
+            .table-responsive {
+                overflow-x: auto;
+                padding: 5px;
+            }
+        }
     </style>
 </head>
 <body>
- 
-    <div class="container">
-        <h1 class="mb-4">Admin Panel</h1>
-        
-        <?php
-        // Display status messages
-        if (isset($_GET['status'])) {
-            $status = $_GET['status'];
-            $message = "";
-            $alert_class = "alert-success";
+    <div class="admin-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div style="display: flex; align-items: center;">
+                    <img src="..\itr\assets\img\inspectlogo.png" alt="Logo" class="mb-3" width="65px">
+                     <h3 style="font-family: 'Russo One', sans-serif;">CoMDiMS</h3>
+                </div>
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
             
-            switch ($status) {
-                case "added":
-                    $message = "User added successfully!";
-                    break;
-                case "updated":
-                    $message = "User updated successfully!";
-                    break;
-                case "deleted":
-                    $message = "User deleted successfully!";
-                    break;
-                case "enabled":
-                    $message = "User account enabled successfully!";
-                    break;
-                case "disabled":
-                    $message = "User account disabled successfully!";
-                    break;
-                default:
-                    $message = "";
-            }
-            
-            if (!empty($message)) {
-                echo '<div class="alert ' . $alert_class . ' status-message">' . $message . '</div>';
-            }
-        }
-        ?>
-        
-        <!-- Add User Button -->
-        <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addUserModal">
-            Add New User
-        </button>
-          <li>
-                    <a href="home.php" >
+            <ul class="sidebar-menu" id="sidebarMenu">
+                <li>
+                    <a href="home.php">
                         <i class="fas fa-home"></i>
                         <span>Dashboard</span>
                     </a>
                 </li>
+                <li>
+                    <a href="import_sql_lite.php">
+                        <i class="fas fa-database"></i>
+                        <span>Import Data</span>
+                    </a>
+                </li>
+                <li>
+                     <a href="itr_form.php">
+                        <i class="fas fa-file-alt"></i>
+                        <span>New Entry</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="tables.php">
+                        <i class="fas fa-table"></i>
+                        <span>Inspection Tables</span>
+                    </a>
+                </li>
+                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
+                    echo '
+                    <li>
+                        <a href="admin_panel.php" class="active">
+                            <i class="fa-solid fa-user-tie"></i>
+                            <span>Admin Panel</span>
+                        </a>
+                    </li>
+                    ';
+                } ?>
+                <li>
+                    <a href="?action=logout">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
         
-        <!-- User Table -->
-        <div class="table-responsive">
-            <table class="table table-striped table-bordered">
-                <thead class="table-dark">
-                    <tr>
-                        <th>ID</th>
-                        <th>User ID</th>
-                        <th>Full Name</th>
-                        <th>Email</th>
-                        <th>Contact Number</th>
-                        <th>Role</th>
-                        <th>Status</th>
-                        <th>Created At</th>
-                        <th>Updated At</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    if ($result->num_rows > 0) {
-                        while($row = $result->fetch_assoc()) {
-                            echo "<tr>";
-                            echo "<td>".$row["id"]."</td>";
-                            echo "<td>".$row["user_id"]."</td>";
-                            echo "<td>".$row["full_name"]."</td>";
-                            echo "<td>".$row["email"]."</td>";
-                            echo "<td>".$row["contact_number"]."</td>";
-                            echo "<td>".$row["role"]."</td>";
-                            
-                            // Status column with appropriate styling
-                            $status_badge = ($row["status"] == 'active') ? 
-                                           '<span class="badge bg-success">Active</span>' : 
-                                           '<span class="badge bg-danger">Disabled</span>';
-                            echo "<td>".$status_badge."</td>";
-                            
-                            echo "<td>".$row["created_at"]."</td>";
-                            echo "<td>".$row["updated_at"]."</td>";
-                            echo "<td class='action-buttons'>
-                                    <button class='btn btn-sm btn-warning edit-btn' 
-                                            data-id='".$row["id"]."'
-                                            data-user_id='".$row["user_id"]."'
-                                            data-full_name='".$row["full_name"]."'
-                                            data-email='".$row["email"]."'
-                                            data-contact_number='".$row["contact_number"]."'
-                                            data-role='".$row["role"]."'
-                                            data-status='".$row["status"]."'
-                                            data-bs-toggle='modal' 
-                                            data-bs-target='#editUserModal'>
-                                        Edit
-                                    </button>";
-                            
-                            // Toggle status button
-                            if ($row["status"] == 'active') {
-                                echo "<a href='?toggle_status=".$row["id"]."' class='btn btn-sm btn-secondary' 
-                                          onclick='return confirm(\"Are you sure you want to disable this account?\")'>Disable</a>";
-                            } else {
-                                echo "<a href='?toggle_status=".$row["id"]."' class='btn btn-sm btn-success' 
-                                          onclick='return confirm(\"Are you sure you want to enable this account?\")'>Enable</a>";
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <div class="admin-header">
+                <h1><i class="fa-solid fa-user-tie me-2"></i>User Management</h1>
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                        <i class="fas fa-plus me-1"></i> Add New User
+                    </button>
+                    <a href="home.php" class="btn btn-outline-secondary">
+                        <i class="fas fa-home me-1"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+            
+            <?php
+            // Display status messages
+            if (isset($_GET['status'])) {
+                $status = $_GET['status'];
+                $message = "";
+                $alert_class = "alert-success";
+                
+                switch ($status) {
+                    case "added":
+                        $message = "User added successfully!";
+                        break;
+                    case "updated":
+                        $message = "User updated successfully!";
+                        break;
+                    case "deleted":
+                        $message = "User deleted successfully!";
+                        break;
+                    case "enabled":
+                        $message = "User account enabled successfully!";
+                        break;
+                    case "disabled":
+                        $message = "User account disabled successfully!";
+                        break;
+                    default:
+                        $message = "";
+                }
+                
+                if (!empty($message)) {
+                    echo '<div class="alert ' . $alert_class . ' status-message alert-dismissible fade show" role="alert">
+                            ' . $message . '
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>';
+                }
+            }
+            ?>
+            
+            <!-- User Table -->
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User ID</th>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Contact</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Updated</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        if ($result->num_rows > 0) {
+                            while($row = $result->fetch_assoc()) {
+                                echo "<tr>";
+                                echo "<td>".$row["id"]."</td>";
+                                echo "<td>".$row["user_id"]."</td>";
+                                echo "<td>".$row["full_name"]."</td>";
+                                echo "<td>".$row["email"]."</td>";
+                                echo "<td>".$row["contact_number"]."</td>";
+                                echo "<td><span class='badge bg-info'>".ucfirst($row["role"])."</span></td>";
+                                
+                                // Status column with appropriate styling
+                                $status_badge = ($row["status"] == 'active') ? 
+                                               '<span class="badge bg-success">Active</span>' : 
+                                               '<span class="badge bg-danger">Disabled</span>';
+                                echo "<td>".$status_badge."</td>";
+                                
+                                echo "<td>".date('M d, Y', strtotime($row["created_at"]))."</td>";
+                                echo "<td>".(!empty($row["updated_at"]) ? date('M d, Y', strtotime($row["updated_at"])) : '-')."</td>";
+                                echo "<td class='action-buttons'>
+                                        <button class='btn btn-sm btn-outline-primary edit-btn' 
+                                                data-id='".$row["id"]."'
+                                                data-user_id='".$row["user_id"]."'
+                                                data-full_name='".$row["full_name"]."'
+                                                data-email='".$row["email"]."'
+                                                data-contact_number='".$row["contact_number"]."'
+                                                data-role='".$row["role"]."'
+                                                data-status='".$row["status"]."'
+                                                data-bs-toggle='modal' 
+                                                data-bs-target='#editUserModal'>
+                                            <i class='fas fa-edit'></i>
+                                        </button>";
+                                
+                                // Toggle status button
+                                if ($row["status"] == 'active') {
+                                    echo "<a href='?toggle_status=".$row["id"]."' class='btn btn-sm btn-outline-warning' 
+                                              onclick='return confirm(\"Are you sure you want to disable this account?\")'>
+                                              <i class='fas fa-ban'></i>
+                                          </a>";
+                                } else {
+                                    echo "<a href='?toggle_status=".$row["id"]."' class='btn btn-sm btn-outline-success' 
+                                              onclick='return confirm(\"Are you sure you want to enable this account?\")'>
+                                              <i class='fas fa-check'></i>
+                                          </a>";
+                                }
+                                
+                                echo "<a href='?delete=".$row["id"]."' class='btn btn-sm btn-outline-danger' 
+                                        onclick='return confirm(\"Are you sure you want to delete this user?\")'>
+                                        <i class='fas fa-trash'></i>
+                                      </a>
+                                    </td>";
+                                echo "</tr>";
                             }
-                            
-                            echo "<a href='?delete=".$row["id"]."' class='btn btn-sm btn-danger' 
-                                    onclick='return confirm(\"Are you sure you want to delete this user?\")'>Delete</a>
-                                  </td>";
-                            echo "</tr>";
+                        } else {
+                            echo "<tr><td colspan='10' class='text-center py-4'>No users found</td></tr>";
                         }
-                    } else {
-                        echo "<tr><td colspan='9' class='text-center'>No users found</td></tr>";
-                    }
-                    ?>
-                </tbody>
-            </table>
-        </div>
-        
-        <!-- Add User Modal -->
-        <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="addUserModalLabel">Add New User</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        ?>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Add User Modal -->
+            <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title"><i class="fas fa-user-plus me-2"></i>Add New User</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form method="post">
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="user_id" class="form-label">User ID</label>
+                                        <input type="text" class="form-control" id="user_id" name="user_id" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="password" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="password" name="password" required>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="full_name" class="form-label">Full Name</label>
+                                        <input type="text" class="form-control" id="full_name" name="full_name" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="email" name="email" required>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="contact_number" class="form-label">Contact Number</label>
+                                        <input type="text" class="form-control" id="contact_number" name="contact_number" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="role" class="form-label">Role</label>
+                                        <select class="form-select" id="role" name="role">
+                                            <option value="admin">Admin</option>
+                                            <option value="inspector" selected>Inspector</option>
+                                            <option value="legal">Legal</option>
+                                            <option value="head">Head</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="status" class="form-label">Status</label>
+                                    <select class="form-select" id="status" name="status">
+                                        <option value="active" selected>Active</option>
+                                        <option value="disabled">Disabled</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" name="add" class="btn btn-primary">Add User</button>
+                            </div>
+                        </form>
                     </div>
-                    <form method="post">
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="user_id" class="form-label">User ID</label>
-                                <input type="text" class="form-control" id="user_id" name="user_id" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="password" class="form-label">Password</label>
-                                <input type="password" class="form-control" id="password" name="password" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="full_name" class="form-label">Full Name</label>
-                                <input type="text" class="form-control" id="full_name" name="full_name" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="email" name="email" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="contact_number" class="form-label">Contact Number</label>
-                                <input type="text" class="form-control" id="contact_number" name="contact_number" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="role" class="form-label">Role</label>
-                                <select class="form-select" id="role" name="role">
-                                    <option value="admin">Admin</option>
-                                    <option value="inspector" selected>Inspector</option>
-                                    <option value="legal">Legal</option>
-                                    <option value="head">Head</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="status" class="form-label">Status</label>
-                                <select class="form-select" id="status" name="status">
-                                    <option value="active" selected>Active</option>
-                                    <option value="disabled">Disabled</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" name="add" class="btn btn-primary">Add User</button>
-                        </div>
-                    </form>
                 </div>
             </div>
-        </div>
-        
-        <!-- Edit User Modal -->
-        <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            
+            <!-- Edit User Modal -->
+            <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title"><i class="fas fa-user-edit me-2"></i>Edit User</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form method="post">
+                            <div class="modal-body">
+                                <input type="hidden" id="edit_id" name="id">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="edit_user_id" class="form-label">User ID</label>
+                                        <input type="text" class="form-control" id="edit_user_id" name="user_id" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="edit_password" class="form-label">Password (leave blank to keep current)</label>
+                                        <input type="password" class="form-control" id="edit_password" name="password">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="edit_full_name" class="form-label">Full Name</label>
+                                        <input type="text" class="form-control" id="edit_full_name" name="full_name" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="edit_email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="edit_email" name="email" required>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="edit_contact_number" class="form-label">Contact Number</label>
+                                        <input type="text" class="form-control" id="edit_contact_number" name="contact_number" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="edit_role" class="form-label">Role</label>
+                                        <select class="form-select" id="edit_role" name="role">
+                                            <option value="admin">Admin</option>
+                                            <option value="inspector">Inspector</option>
+                                            <option value="legal">Legal</option>
+                                            <option value="head">Head</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit_status" class="form-label">Status</label>
+                                    <select class="form-select" id="edit_status" name="status">
+                                        <option value="active">Active</option>
+                                        <option value="disabled">Disabled</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" name="update" class="btn btn-primary">Save Changes</button>
+                            </div>
+                        </form>
                     </div>
-                    <form method="post">
-                        <div class="modal-body">
-                            <input type="hidden" id="edit_id" name="id">
-                            <div class="mb-3">
-                                <label for="edit_user_id" class="form-label">User ID</label>
-                                <input type="text" class="form-control" id="edit_user_id" name="user_id" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit_password" class="form-label">Password (leave blank to keep current password)</label>
-                                <input type="password" class="form-control" id="edit_password" name="password">
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit_full_name" class="form-label">Full Name</label>
-                                <input type="text" class="form-control" id="edit_full_name" name="full_name" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit_email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="edit_email" name="email" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit_contact_number" class="form-label">Contact Number</label>
-                                <input type="text" class="form-control" id="edit_contact_number" name="contact_number" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit_role" class="form-label">Role</label>
-                                <select class="form-select" id="edit_role" name="role">
-                                    <option value="admin">Admin</option>
-                                    <option value="inspector">Inspector</option>
-                                    <option value="legal">Legal</option>
-                                    <option value="head">Head</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit_status" class="form-label">Status</label>
-                                <select class="form-select" id="edit_status" name="status">
-                                    <option value="active">Active</option>
-                                    <option value="disabled">Disabled</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" name="update" class="btn btn-primary">Update User</button>
-                        </div>
-                    </form>
                 </div>
             </div>
-        </div>
-    </div>
+        </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Toggle mobile menu
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebarMenu = document.getElementById('sidebarMenu');
+        
+        // Initialize menu state based on screen size
+        function initMenu() {
+            if (window.innerWidth >= 768) {
+                sidebarMenu.classList.add('active');
+            } else {
+                sidebarMenu.classList.remove('active');
+            }
+        }
+        
+        // Set initial state
+        initMenu();
+        
+        // Toggle menu when button is clicked
+        menuToggle.addEventListener('click', function() {
+            sidebarMenu.classList.toggle('active');
+        });
+        
+        // Close menu when clicking on a link (for mobile)
+        const menuLinks = document.querySelectorAll('.sidebar-menu a');
+        menuLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth < 768) {
+                    sidebarMenu.classList.remove('active');
+                }
+            });
+        });
+        
+        // Update menu state when window is resized
+        window.addEventListener('resize', function() {
+            initMenu();
+        });
+
         // Fill edit modal with user data
         document.addEventListener('DOMContentLoaded', function() {
             const editButtons = document.querySelectorAll('.edit-btn');
@@ -474,11 +652,16 @@ $result = $conn->query($sql);
                     document.getElementById('edit_status').value = status;
                 });
             });
+            
+            // Auto-dismiss alerts after 3 seconds
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.classList.remove('show');
+                    alert.classList.add('fade');
+                }, 3000);
+            });
         });
     </script>
 </body>
 </html>
-
-<?php
-$conn->close();
-?>

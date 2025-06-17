@@ -2,6 +2,17 @@
 
 require "config.php";
 checkLogin();
+allowAccess();
+
+// Check if logout action is requested
+if (isset($_GET['action']) && $_GET['action'] === 'logout') {
+    logout();
+}
+
+if (isset($_GET['action']) && $_GET['action'] === 'delete') {
+    DeleteEntry();
+}
+
 
 // Define admin roles - only admin can delete
 $is_admin = ($_SESSION['role'] === 'admin');
@@ -12,7 +23,7 @@ $is_admin = ($_SESSION['role'] === 'admin');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Business Information System</title>
+    <title>CoMDiMS | Tables</title>
     <link rel="icon" type="image/x-icon" href="..\itr\assets\img\inspectlogo.png">
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="//cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css">
@@ -23,24 +34,13 @@ $is_admin = ($_SESSION['role'] === 'admin');
      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
      <!-- Font Awesome -->
      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+     <link rel="stylesheet" href="globalcss.css">
+     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Russo+One&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #2c3e50;
-            --secondary: #3498db;
-            --accent: #e74c3c;
-            --light: #ecf0f1;
-            --dark: #1a252f;
-            --primary-color: #4361ee;
-            --secondary-color: #3f37c9;
-            --accent-color: #4895ef;
-            --dark-color: #2b2d42;
-            --light-color: #f8f9fa;
-            --success-color: #4cc9f0;
-        }
-        
+
         * {
-            margin: 0;
-            padding: 0;
+         
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
@@ -55,79 +55,7 @@ $is_admin = ($_SESSION['role'] === 'admin');
             flex-direction: column;
             min-height: 100vh;
         }
-        
-       /* Sidebar Styles */
-       .sidebar {
-            width: 250px;
-            background: var(--primary);
-            color: white;
-            transition: all 0.3s;
-            position: relative;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .sidebar-header {
-            padding: 15px 20px;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .sidebar-header h3 {
-            margin-left: 10px;
-            font-size: 1.5rem;
-            font-weight: 200;
-            color: rgb(24, 15, 103);
-            
-            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-        }
-        
-        .menu-toggle {
-            display: block;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 5px;
-        }
-        
-        .sidebar-menu {
-            padding: 0;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-        }
-        
-        .sidebar-menu.active {
-            max-height: 1000px;
-            padding: 10px 0;
-        }
-        
-        .sidebar-menu li {
-            list-style: none;
-        }
-        
-        .sidebar-menu a {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            color: var(--light);
-            text-decoration: none;
-            transition: all 0.3s;
-            font-size: 15px;
-        }
-        
-        .sidebar-menu a:hover, .sidebar-menu a.active {
-            background: rgba(255, 255, 255, 0.1);
-            border-left: 4px solid var(--secondary);
-        }
-        
-        .sidebar-menu a i {
-            margin-right: 10px;
-            font-size: 18px;
-        }
+    
         
         /* Main Content Styles */
         .main-content {
@@ -314,7 +242,7 @@ $is_admin = ($_SESSION['role'] === 'admin');
             <div class="sidebar-header">
                 <div style="display: flex; align-items: center;">
                     <img src="..\itr\assets\img\inspectlogo.png" alt="Logo" class="mb-3" width="65px">
-                    <h3>DataSpect</h3>
+                     <h3 style="font-family: 'Russo One', sans-serif;">CoMDiMS</h3>
                 </div>
                 
                 <button class="menu-toggle" id="menuToggle">
@@ -337,7 +265,7 @@ $is_admin = ($_SESSION['role'] === 'admin');
                 </li>
                 <li>
                      <a href="itr_form.php?" >
-                        <i class="fas fa-file-alt"></i>
+                        <i class="bi bi-file-earmark-plus-fill"></i>
                         <span>New Entry</span>
                     </a>
                 </li>
@@ -347,8 +275,22 @@ $is_admin = ($_SESSION['role'] === 'admin');
                         <span>Inspection Tables</span>
                     </a>
                 </li>
+
+
+                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
+                    echo '
+                    <li>
+                        <a href="admin_panel.php">
+                            <i class="fa-solid fa-user-tie"></i>
+                            <span>Admin Panel</span>
+                        </a>
+                    </li>
+                    ';
+                }
+                ?>
+                
                 <li>
-                    <a href="logout.php">
+                     <a href="?action=logout">
                          <i class="fa-solid fa-right-from-bracket"></i>
                         <span>Logout</span>
                     </a>
@@ -377,7 +319,7 @@ $is_admin = ($_SESSION['role'] === 'admin');
                         <!-- Data will be loaded via AJAX -->
                     </tbody>
                 </table>
-            </div>
+          
 
            
 
@@ -395,6 +337,7 @@ $is_admin = ($_SESSION['role'] === 'admin');
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+                    
                 </div>
             </div>
         </div>
@@ -417,7 +360,7 @@ $is_admin = ($_SESSION['role'] === 'admin');
         </div>
     </div>
     
-   
+     </div>
     <script>
 
         

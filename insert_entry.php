@@ -16,6 +16,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die(json_encode(['status' => 'error', 'message' => "Connection failed: " . $database->connect_error]));
     }
 
+
+    // Prepare response array
+$response = [
+    'status' => 'error',
+    'title' => 'Error!',
+    'message' => 'Failed to submit the form.',
+    'icon' => 'error'
+];
+
+
+    // Get the ITR form number
+    $itr_form_num = $_POST['itr_form_num'] ?? '';
+    
+    if (empty($itr_form_num)) {
+        throw new Exception("ITR Form Number is required.");
+    }
     // Start transaction
     $database->begin_transaction();
     function uuidv4() {
@@ -32,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $uuidSampling = uuidv4();
 
 
-    try {
+
         // Get form data
         $itr_form_num = $_POST['itr_form_num'] ?? '';
         $business_name = $_POST['business_name'] ?? '';
@@ -397,54 +413,29 @@ $stmt_remarks->bind_param("ssss",
     $user_gen_remarks,
     $action_required
 );
-
-// Execute the statement
-if (!$stmt_remarks->execute()) {
-    throw new Exception("Execute failed for remarks: " . $stmt_remarks->error);
-}
-
-// Don't forget to close the statement
-$stmt_remarks->close();
-
-        // Commit transaction if all succeeded
-        $database->commit();
-        
-        // Enhanced success message for SweetAlert
-        $successMessage = [
-            'status' => 'success', 
-            'message' => 'ITR Form ' . $itr_form_num . ' has been successfully saved!',
-            'title' => 'Success',
-            'icon' => 'success',
-            'itr_num' => $itr_form_num
-        ];
-        
-        echo json_encode($successMessage);
-
-    } catch (Exception $e) {
-        // Rollback transaction on any error
-        $database->rollback();
-        
-        // Enhanced error message for SweetAlert
-        $errorMessage = [
-            'status' => 'error',
-            'message' => $e->getMessage(),
-            'title' => 'Error',
-            'icon' => 'error'
-        ];
-        
-        echo json_encode($errorMessage);
-    } finally {
-        // Close connection
-        $database->close();
+{
+    // Execute the statement
+    if (!$stmt_remarks->execute()) {
+        throw new Exception("Execute failed for remarks: " . $stmt_remarks->error);
     }
-} else {
-    // Form not submitted error for SweetAlert
-    $notSubmittedError = [
-        'status' => 'error',
-        'message' => 'The form was not submitted properly. Please try again.',
-        'title' => 'Submission Error',
-        'icon' => 'warning'
-    ];
+
+    // Don't forget to close the statement
+    $stmt_remarks->close();
+
+    // Commit transaction if all succeeded
+      $database->commit();
     
-    echo json_encode($notSubmittedError);
+    // Success response
+    echo json_encode([
+        'status' => 'success', 
+        'message' => 'ITR Form ' . $itr_form_num . ' has been successfully saved!',
+        'title' => 'Success',
+        'icon' => 'success',
+        'itr_num' => $itr_form_num
+    ]);
+    
+
+    // Close connection
+    $database->close();
 }
+    }

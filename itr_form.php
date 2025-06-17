@@ -5,13 +5,18 @@
 require "config.php";
 checkLogin();
 allowAccess();
+
+
+if (isset($_GET['action']) && $_GET['action'] === 'logout') {
+    logout();
+}
 ?>
        <!DOCTYPE html>
         <html lang="en">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-            <title>Inspection Form</title>
+            <title>CoMDiMS | Tables</title>
             <link rel="icon" type="image/x-icon" href="..\itr\assets\img\inspectlogo.png">
             <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
             <!-- Bootstrap Icons -->
@@ -25,6 +30,8 @@ allowAccess();
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.min.css">
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.all.min.js"></script>
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Russo+One&display=swap" rel="stylesheet">
             <style>
                 :root {
                     --primary: #2c3e50;
@@ -34,9 +41,10 @@ allowAccess();
                     --dark: #1a252f;
                 }
                 
-                * {
-                    box-sizing: border-box;
-                    font-family: "Poppins", sans-serif;
+               * {
+           
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                 }
                 
                 body {
@@ -623,7 +631,7 @@ input:not(:checked) ~ .mode-label.edit-mode {
                 <div class="sidebar-header">
                     <div style="display: flex; align-items: center;">
                             <img src="..\itr\assets\img\inspectlogo.png" alt="Logo" class="mb-3" width="65px">
-                            <h3>DataSpect</h3>
+                           <h3 style="font-family: 'Russo One', sans-serif;">CoMDiMS</h3>
                         </div>
                 </div>
                 
@@ -653,13 +661,24 @@ input:not(:checked) ~ .mode-label.edit-mode {
                         </a>
                     </li>
                     <li>
-                            <a href="logout.php">
+                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
+    echo '
+    <li>
+        <a href="admin_panel.php">
+            <i class="fa-solid fa-user-tie"></i>
+            <span>Admin Panel</span>
+        </a>
+    </li>
+    ';
+}
+?>
+                              <a href="?action=logout">
                                 <i class="fa-solid fa-right-from-bracket"></i>
                                 <span>Logout</span>
                             </a>
                         </li>
 
-                        <?php echo '<li><a href="user_profile.php"><i class="fas fa-user"></i> <span>' . $_SESSION['role'] . '</span></a></li>'; ?>
+                        <?php // echo '<li><a href="user_profile.php"><i class="fas fa-user"></i> <span>' . $_SESSION['role'] . '</span></a></li>'; ?>
                 </ul>
             </aside>
             
@@ -702,14 +721,14 @@ input:not(:checked) ~ .mode-label.edit-mode {
                                     <!-- ITR Form Number -->
                                 
                                     <div class="form-group">
-    <label for="itr_form_num" class="form-label">ITR Form Number</label>
-    <div class="input-wrapper">
-        <input type="text" class="form-control" id="itr_form_num" name="itr_form_num" required>
-        <button type="button" id="search-icon" class="search-button" style="display: none;">
-            <i class="fas fa-search"></i>
-        </button>
-    </div>
-</div>
+                                        <label for="itr_form_num" class="form-label">ITR Form Number</label>
+                                        <div class="input-wrapper">
+                                            <input type="text" class="form-control" id="itr_form_num" name="itr_form_num" required>
+                                            <button type="button" id="search-icon" class="search-button" style="display: none;">
+                                                <i class="fas fa-search"></i>
+                                            </button>
+                                        </div>
+                                    </div>
                                     <!-- Business Name -->
                                     <div class="form-group">
                                         <label for="business_name" class="form-label">Business Name </label>
@@ -758,9 +777,9 @@ input:not(:checked) ~ .mode-label.edit-mode {
                                     <div class="form-group">
                                         <label for="outlet_class" class="form-label">Outlet Classification</label>
                                         <select class="form-select" id="outlet_class" name="outlet_class" style="width: 65%; ">
-                                            <option value="COCO">COCO</option>
-                                            <option value="CODO">CODO</option>
-                                            <option value="DODO">DODO</option>
+                                            <option value="COCO (Company Owned Company Operated)">COCO</option>
+                                            <option value="CODO (Company Owned Dealer Operated)">CODO</option>
+                                            <option value="DODO (Dealer Owned Dealer Operated)">DODO</option>
                                         </select>
                                     </div>
 
@@ -784,7 +803,7 @@ input:not(:checked) ~ .mode-label.edit-mode {
                                 </div>
                             </div>
                           
-                      <?php if ($_SESSION['role'] !== 'legal'): ?>
+                        <?php if ($_SESSION['role'] !== 'legal'): ?>
                             <div class="mandatorytitle">
                                 <h5>MANDATORY AND MINIMUM STANDARDS & REQUIREMENTS</h5>
                             </div>
@@ -919,8 +938,14 @@ input:not(:checked) ~ .mode-label.edit-mode {
                             <textarea id="action_required" name="action_required" rows="4" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9; resize: vertical;">
                             </textarea>
                         </div>
+                    
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <?php endif; ?>
+                    </form>
                     </div>
-                    <?php endif; ?>
+                    
 
 <?php if ($_SESSION['role'] === 'legal'): ?>
 <style>
@@ -963,8 +988,19 @@ input:not(:checked) ~ .mode-label.edit-mode {
         border: 1px solid #ddd;
         border-radius: 4px;
     }
+    .penalty-amount-container {
+        display: none;
+        width: 100%;
+        padding-top: 8px;
+    }
+    .penalty-amount-input {
+        width: 100%;
+        max-width: 250px;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
 </style>
-
 <div class="form-section" style="margin: 20px auto; max-width: 900px; font-family: Arial, sans-serif;">
     <div style="border: 1px solid #ddd; border-radius: 4px; overflow: hidden;">
         <!-- Header Row -->
@@ -974,39 +1010,80 @@ input:not(:checked) ~ .mode-label.edit-mode {
             <div class="violation-column violation-action">Legal Action</div>
         </div>
         
-        <!-- Data Rows -->
-        <?php foreach ($violation_pairs as $pair): 
-            $boolean_column = $pair[0]; 
-            $label = $pair[1];
-            $remarks_column = $pair[2];
-        ?>
-            <div id="div_<?php echo htmlspecialchars($boolean_column); ?>" class="violation-row violation-item">
-                <!-- Violation Column -->
-                <div class="violation-column">
-                    <?php echo htmlspecialchars($label); ?>
-                </div>
+        
+
+       
+       
+            <form method="POST" id="violations_form" action="CRUD_legal.php">
+                <!-- Your existing form fields -->
+                 <!-- Data Rows -->
                 
-                <!-- Remarks Column -->
-                <div id="remarks_<?php echo htmlspecialchars($remarks_column); ?>" class="violation-column violation-remarks">
-                    <?php /* Remarks content appears here */ ?>
+                <div id="violation_container">
+                   <?php foreach ($violation_pairs as $pair){
+
+                        $boolean_column = $pair[0]; 
+                        $label = $pair[1];
+                        $remarks_column = $pair[2];
+                    ?>
+                        <div id="div_<?php echo htmlspecialchars($pair[0]); ?>" class="violation-row violation-item">
+                            <div class="violation-column">
+                                <?php echo htmlspecialchars($pair[1]); ?>
+                            </div>
+                            <div id="remarks_<?php echo htmlspecialchars($pair[2]); ?>" class="violation-column violation-remarks">
+                                <!-- Remarks content appears here -->
+                            </div>
+
+                            
+                            <div class="violation-column violation-action">
+                                <select id="select_<?php echo htmlspecialchars($pair[0]); ?>" name="legal_action_<?php echo htmlspecialchars($pair[0]); ?>" class="violation-input legal-action-select" data-violation="<?php echo htmlspecialchars($pair[0]); ?>">
+                                    <option value="Pending" selected>Pending</option>
+                                    <option value="Warning">Warning</option>
+                                    <option value="Penalty">Penalty</option>
+                                    <option value="Resolved">Resolved</option>
+                                    <option value="Reconsider">Reconsider</option>
+                                </select>
+                                <div class="penalty-amount-container" id="penalty_container_<?php echo htmlspecialchars($pair[0]); ?>">
+                                    <input type="text" class="penalty-amount-input" 
+                                        name="penalty_amount_<?php echo htmlspecialchars($pair[0]); ?>" 
+                                        placeholder="Enter penalty amount">
+                                </div>
+                            </div>
+                        </div>
+                    <?php } ?>
                 </div>
-                
-                <!-- Legal Action Column -->
-                <div class="violation-column violation-action">
-                    <input type="text" 
-                           name="legal_action_<?php echo htmlspecialchars($boolean_column); ?>"
-                           class="violation-input" 
-                           placeholder="Enter legal action">
-                </div>
-            </div>
-        <?php endforeach; ?>
+
+                <!-- Main Submit Button (for your original form) -->
+                <button type="submit" class="btn btn-primary">Submit Legal</button>
+
+            </form>
+
     </div>
 </div>
 <?php endif; ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get all select elements with class 'legal-action-select'
+    const selects = document.querySelectorAll('.legal-action-select');
+    
+    // Add event listener to each select element
+    selects.forEach(select => {
+        select.addEventListener('change', function() {
+            const violationId = this.getAttribute('data-violation');
+            const penaltyContainer = document.getElementById(`penalty_container_${violationId}`);
+            
+            // Show or hide penalty amount input based on selection
+            if (this.value === 'Penalty') {
+                penaltyContainer.style.display = 'block';
+            } else {
+                penaltyContainer.style.display = 'none';
+            }
+        });
+    });
+});
+</script>
                     
-                             <!-- Submit Button -->
-                                <button type="submit" class="btn btn-primary">Submit</button>
-                            </form>
+                             
                         </div>
                     </div>
                 </div>
@@ -1127,16 +1204,16 @@ input:not(:checked) ~ .mode-label.edit-mode {
                         }
                     });
 
-        document.getElementById('itrForm').addEventListener('submit', function(event) {
-            // Convert N/A option values to empty string before submission
-            const ronSelects = document.querySelectorAll('select[name="ron_value[]"]');
-            ronSelects.forEach(select => {
-                const selectedOption = select.options[select.selectedIndex];
-                if (selectedOption && selectedOption.text === 'N/A (Diesel)') {
-                    selectedOption.value = ''; // Ensure value is empty string (will become NULL)
-                }
-            });
-        });
+                    document.getElementById('itrForm').addEventListener('submit', function(event) {
+                        // Convert N/A option values to empty string before submission
+                        const ronSelects = document.querySelectorAll('select[name="ron_value[]"]');
+                        ronSelects.forEach(select => {
+                            const selectedOption = select.options[select.selectedIndex];
+                            if (selectedOption && selectedOption.text === 'N/A (Diesel)') {
+                                selectedOption.value = ''; // Ensure value is empty string (will become NULL)
+                            }
+                        });
+                    });
 
                     // Setup interaction for initial rows when page loads
                     const initialRows = document.querySelectorAll('.sampling-row');
@@ -1172,17 +1249,21 @@ input:not(:checked) ~ .mode-label.edit-mode {
                                     
                         <?php foreach ($violation_pairs as $pair)
                         {
-                                        $boolean_column = $pair[0]; 
-                                        $label = $pair[1];
-                                        $remarks_column = $pair[2];
+                            $boolean_column = $pair[0]; 
+                            $label = $pair[1];
+                            $remarks_column = $pair[2];
                         ?>
-                                document.getElementById('div_<?php echo $boolean_column ?>').style.display = "none";
-                                    if (data["checklist"]["<?php echo $boolean_column ?>"] == 0){
-                                            
-                                            document.getElementById('div_<?php echo $boolean_column ?>').style.display = "inline";
-                                            document.getElementById('remarks_<?php echo $remarks_column ?>').innerHTML   = data["checklist"]["<?php echo $remarks_column ?>"] || '';
-                                    }
-                            
+                            if (document.getElementById('div_<?php echo $boolean_column ?>')){
+                                //document.getElementById('div_<?php echo $boolean_column ?>').style.display = "none";
+                                if (data["checklist"]["<?php echo $boolean_column ?>"] == 0){
+                                        
+                                        //document.getElementById('div_<?php echo $boolean_column ?>').style.display = "inline";
+                                        document.getElementById('remarks_<?php echo $remarks_column ?>').innerHTML   = data["checklist"]["<?php echo $remarks_column ?>"] || '';
+                                }
+                                else {
+                                    document.getElementById('select_<?php echo $boolean_column ?>').value = '';
+                                }
+                            }
                         
                         <?php } 
                     endif ?>
@@ -1203,7 +1284,7 @@ input:not(:checked) ~ .mode-label.edit-mode {
                         setCheckboxState('duplicate_retention_samples', data.checklist.duplicate_retention_samples);
                         setCheckboxState('appropriate_sampling', data.checklist.appropriate_sampling);
                         
-console.log("------------------------------")
+
                         if (data.supplierInfo){
                             // Supplier Info
                             document.getElementById('receipt_invoice').value = data.supplierInfo.receipt_invoice || '';
@@ -1560,12 +1641,12 @@ function checkForExistingRecord() {
                 }
 
                 document.getElementById('itrForm').addEventListener('submit', function(event) {
-        // Enable all disabled selects so they get submitted
-        document.querySelectorAll('select:disabled').forEach(select => {
-            select.disabled = false;
-        });
-        // Form submits normally
-    });
+                    // Enable all disabled selects so they get submitted
+                    document.querySelectorAll('select:disabled').forEach(select => {
+                        select.disabled = false;
+                    });
+                    // Form submits normally
+                });
                 
             </script>
 
@@ -1578,7 +1659,7 @@ function checkForExistingRecord() {
             
             fetchExistingRecordWithAlert("<?php echo $_GET["itr_form_num"] ?>")
             // Override the form submission
-            itrForm.addEventListener('submit', function(event) {
+            itrForm.addEventListener('submits', function(event) {
                 event.preventDefault(); // Prevent the default form submission
                 
                 // Enable all disabled selects so they get submitted
@@ -1738,7 +1819,7 @@ function checkForExistingRecord() {
 
 
 
-        function setupProductRonInteraction(productSelect, ronSelect) {
+function setupProductRonInteraction(productSelect, ronSelect) {
     if (!productSelect || !ronSelect) return;
     
     productSelect.addEventListener('change', function() {
@@ -1771,7 +1852,7 @@ function toggleSearchIcon() {
         searchIcon.style.display = 'none';
     }
 }
-
+/*
 const itrForm = document.getElementById('itrForm');
     
     itrForm.addEventListener('submit', async function(event) {
@@ -1859,7 +1940,7 @@ const itrForm = document.getElementById('itrForm');
             });
         }
     });
-
+*/
     
 
     </script>

@@ -80,7 +80,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DataSpect Portal</title>
+    <title>COMDIMS | Login</title>
     <link rel="icon" type="image/x-icon" href="..\itr\assets\img\inspectlogo.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -147,7 +147,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['user_id'])) {
                     <div class="card-body p-5">
                         <div class="text-center mb-4">
                             <img src="..\itr\assets\img\inspectlogo.png" alt="Logo" class="mb-3" width="120px">
-                            <h2 class="fw-bold text-primary">DataSpect Login</h2>
+                            <h2 class="fw-bold text-primary">Compliance Monitoring Digital Management System</h2>
                             <p class="text-muted">Enter your credentials to access your account</p>
                         </div>
                         

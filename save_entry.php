@@ -353,7 +353,43 @@ $data['action_required']
 ]);
 }
 
+$stmt = $conn->prepare("INSERT INTO summaryremarks (id, itr_form_num,   , action_required)
+        VALUES (UUID(), ?, ?, ?)");
+$stmt->execute([
+$itrFormNum,
+$data['extracted_violations'],
+$data['action_required']
+]);
+}
+
+
+  $violations_sql = "INSERT INTO station_violations 
+                      (itr_form_num, violation_id, legal_action, penalty_amount, remarks)
+                      VALUES (?, ?, ?, ?, ?)";
     
+    $stmt = $conn->prepare($violations_sql);
+    
+    foreach ($violation_ids as $i => $violation_id) {
+        $penalty = ($legal_actions[$i] == 'Penalty') ? floatval($penalty_amounts[$i]) : 0;
+        
+        $stmt->bind_param("sssds", 
+            $itr_form_num,
+            $violation_id,
+            $legal_actions[$i],
+            $penalty,
+            $action_remarks[$i]
+        );
+        $stmt->execute();
+    }
+    
+    $stmt->close();
+}
+$conn->close();
+?>
+
+
+    
+
     // Commit transaction
     $conn->commit();
     
