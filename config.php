@@ -83,8 +83,15 @@ $violation_pairs = [
     ['transfer_dispense', 's.1 Transfer/dispensing on approved containers only', 'transfer_dispense_remarks'],
     ['no_drum', 's.2 No Drumming / "Bote-Bote" of Liquid Fuels', 'no_drum_remarks'],
     ['no_hoard', 't.1 No Hoarding', 'no_hoard_remarks'],
+    ['free_tire_press', 'u.1 Offers free tire pressure air filling', 'free_tire_press_remarks'],
+    ['free_water', 'u.2 Offers free water for radiator', 'free_water_remarks'],
+    ['basic_mechanical', 'u.3 Basic mechanical services', 'basic_mechanical_remarks'],
+    ['first_aid', 'u.4 First aid kits', 'first_aid_remarks'],
+    ['design_eval', 'u.5 Designated evacuation assembly area', 'design_eval_remarks'],
+    ['electric_eval', 'u.6 Electric vehicle charging facility', 'electric_eval_remarks'],
     ['under_deliver', 'Under Deliver', 'under_deliver_remarks']
 ];
+
 
 
 

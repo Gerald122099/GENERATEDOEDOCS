@@ -449,11 +449,37 @@ $maxLength_violation = 200;
 
 $pdf->SetXY($violation_headerX, $violation_headerY);
 
-foreach ($violation_pairs as $pair) {
+$filtered_pairs = array_filter($violation_pairs, function($item) {
+    $excluded_keys = [
+        'free_tire_press', 
+        'free_water', 
+        'basic_mechanical', 
+        'first_aid', 
+        'design_eval', 
+        'electric_eval'
+    ];
+    return !in_array($item[0], $excluded_keys);
+});
+
+$filtered_pairs = array_filter($violation_pairs, function($item) {
+    $excluded_keys = ['free_tire_press', 
+        'free_water', 
+        'basic_mechanical', 
+        'first_aid', 
+        'design_eval', 
+        'electric_eval'];
+    return !in_array($item[0], $excluded_keys);
+});
+
+
+foreach ($filtered_pairs as $pair) {
     $boolean_column = $pair[0]; 
     $label = $pair[1];
     $remarks_column = $pair[2];
 
+
+
+    
     if (isset($data_remarks_summary[$boolean_column]) && $data_remarks_summary[$boolean_column] == 0) {
         $violation_text = $label;
         
