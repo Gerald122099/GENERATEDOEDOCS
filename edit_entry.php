@@ -1,6 +1,7 @@
 <?php
 // edit.php
-error_log(print_r($_POST, true));
+header('Content-Type: application/json'); // Ensure we return JSON
+
 // Check if the form has been submitted in edit mode
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_mode']) && $_POST['edit_mode'] === 'true') {
     // Database connection
@@ -13,7 +14,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_mode']) && $_POS
 
     // Check connection
     if ($database->connect_error) {
-        die("Database connection failed: " . $database->connect_error);
+        die(json_encode([
+            'status' => 'error',
+            'title' => 'Database Error',
+            'message' => "Connection failed: " . $database->connect_error,
+            'icon' => 'error'
+        ]));
     }
 
     // Start transaction
@@ -25,9 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_mode']) && $_POS
         
         // Validate required fields
         if (empty($itr_form_num)) {
-            throw new Exception("Error: ITR Form Number is required for all updates.");
+            throw new Exception("ITR Form Number is required for all updates.");
         }
-
         // 1. Update businessinfo - only update changed fields
         // First get existing data
         $sql_get_business = "SELECT * FROM businessinfo WHERE itr_form_num = ?";
@@ -508,11 +513,15 @@ else {
     $stmt_insert_remarks->close();
 }
 
-        // Commit transaction if all succeeded
+               // Commit transaction if all succeeded
         $database->commit();
+        
+        // Success response with SweetAlert-compatible format
         echo json_encode([
             'status' => 'success',
-            'message' => 'Record updated successfully',
+            'title' => 'Success!',
+            'message' => 'ITR Form ' . $itr_form_num . ' has been successfully updated!',
+            'icon' => 'success',
             'itr_form_num' => $itr_form_num
         ]);
 
@@ -522,22 +531,29 @@ else {
             $database->rollback();
         }
         
-        http_response_code(500);
-        die(json_encode([
+        // Error response with SweetAlert-compatible format
+        http_response_code(400);
+        echo json_encode([
             'status' => 'error',
+            'title' => 'Update Failed',
             'message' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]));
+            'icon' => 'error',
+            'trace' => $e->getTraceAsString() // Only include in development
+        ]);
+        
     } finally {
         if (isset($database) && $database instanceof mysqli) {
             $database->close();
         }
     }
 } else {
-    http_response_code(405); // Method Not Allowed
-    die(json_encode([
+    // Method not allowed response
+    http_response_code(405);
+    echo json_encode([
         'status' => 'error',
-        'message' => 'Invalid request method. Only POST is allowed.'
-    ]));
+        'title' => 'Invalid Request',
+        'message' => 'Invalid request method. Only POST is allowed.',
+        'icon' => 'error'
+    ]);
 }
 ?>

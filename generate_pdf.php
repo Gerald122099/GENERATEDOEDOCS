@@ -211,8 +211,8 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
                 'basic_mechanical',
                 'first_aid',
                 'design_eval',
-                'electric_eval',];
-               // 'under_deliver'
+                'electric_eval',
+               'under_deliver'];
             
             for ($i = 0; $i < count($arr_col1); $i++) {
                 $j = 9 + $i;

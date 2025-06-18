@@ -17,6 +17,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
             <title>CoMDiMS | Tables</title>
+    
             <link rel="icon" type="image/x-icon" href="..\itr\assets\img\inspectlogo.png">
             <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
             <!-- Bootstrap Icons -->
@@ -31,7 +32,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.min.css">
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.all.min.js"></script>
             <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Russo+One&display=swap" rel="stylesheet">
+            <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Russo+One&display=swap" rel="stylesheet">
             <style>
                 :root {
                     --primary: #2c3e50;
@@ -770,7 +771,7 @@ input:not(:checked) ~ .mode-label.edit-mode {
                                     <!-- SA Date -->
                                     <div class="form-group">
                                         <label for="sa_date" class="form-label">SA Date</label>
-                                        <input type="date" class="form-control" id="sa_date" name="sa_date">
+                                        <input type="datetime" class="form-control" id="sa_date" name="sa_date">
                                     </div>
 
                                     <!-- Outlet Classification -->
@@ -920,7 +921,7 @@ input:not(:checked) ~ .mode-label.edit-mode {
                                     </div>
                                                                 <div class="mb-3">
                                         <label for="date_deliver" style="width:30%" class="label-supplier">Date of Delivery:</label>
-                                        <input type="date" id="date_deliver" class="form-control-supplier" name="date_deliver" required><br>
+                                        <input type="datetime" id="date_deliver" class="form-control-supplier" name="date_deliver" required><br>
                                     </div>
                                     <div class="mb-3">
                                         <label for="address" style="width:30%" class="label-supplier">Address:</label>
@@ -1504,6 +1505,71 @@ function toggleMode() {
     }
 }
 
+
+
+$(document).ready(function() {
+    // Handle form submission
+    $('#yourFormId').on('submit', function(e) {
+        e.preventDefault();
+        
+        // Show loading indicator if needed
+        Swal.fire({
+            title: 'Processing',
+            text: 'Please wait while we submit your form...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading()
+            }
+        });
+
+        // Get form data
+        var formData = new FormData(this);
+        
+        // AJAX submission
+        $.ajax({
+            url: 'submit_form.php',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                try {
+                    var data = typeof response === 'string' ? JSON.parse(response) : response;
+                    
+                    Swal.fire({
+                        title: data.title || (data.status === 'success' ? 'Success!' : 'Error!'),
+                        text: data.message,
+                        icon: data.icon || (data.status === 'success' ? 'success' : 'error'),
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        if (data.status === 'success') {
+                            // Redirect or clear form on success
+                            // window.location.href = 'success-page.html';
+                            // or reset form:
+                            // $('#yourFormId')[0].reset();
+                        }
+                    });
+                } catch (e) {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'An unexpected error occurred while processing the response.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                    console.error('Error parsing response:', e, response);
+                }
+            },
+            error: function(xhr, status, error) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred while submitting the form: ' + error,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+    });
+});
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     // Set up the toggle switch
@@ -1944,5 +2010,211 @@ const itrForm = document.getElementById('itrForm');
     
 
     </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get the form element
+    const itrForm = document.getElementById('itrForm');
+    
+    // Override the form submission
+    itrForm.addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+        
+        // Show confirmation dialog before submitting
+        Swal.fire({
+            title: 'Submit Form?',
+            text: "Please confirm that all information is correct.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, submit it!',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show loading state
+                const loadingSwal = Swal.fire({
+                    title: 'Processing...',
+                    html: 'Please wait while we process your form.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                // Enable all disabled fields before submission
+                document.querySelectorAll('select:disabled, input:disabled').forEach(el => {
+                    el.disabled = false;
+                });
+
+                // Submit the form via AJAX
+                const formData = new FormData(itrForm);
+                const isEditMode = document.getElementById('modeToggle').checked;
+                const submitUrl = isEditMode ? 'edit.php' : 'insert_entry.php';
+                
+                fetch(submitUrl, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    loadingSwal.close(); // Close loading dialog
+                    
+                    if (data.status === 'success') {
+                        // Success handling
+                        Swal.fire({
+                            title: data.title || 'Success!',
+                            text: data.message || (isEditMode ? 'Record updated successfully!' : 'Form submitted successfully!'),
+                            icon: data.icon || 'success',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#001f88'
+                        }).then(() => {
+                            // Special handling for edit mode
+                            if (isEditMode) {
+                                // Update the existing ITR number field
+                                if (data.itr_form_num) {
+                                    document.getElementById('existing_itr_num').value = data.itr_form_num;
+                                }
+                            } 
+                            // Reset form if in create mode
+                            else {
+                                itrForm.reset();
+                                // Reset checkboxes to default state
+                                document.querySelectorAll('.stateful-checkbox').forEach(checkbox => {
+                                    checkbox.setAttribute('data-state', '0');
+                                    checkbox.classList.remove('checked', 'wrong');
+                                    checkbox.checked = false;
+                                    const remarksContainer = checkbox.nextElementSibling;
+                                    if (remarksContainer && remarksContainer.classList.contains('remarks-container')) {
+                                        remarksContainer.style.display = 'none';
+                                    }
+                                });
+                                
+                                // Hide sampling section
+                                document.getElementById('sampling').checked = false;
+                                document.getElementById('samplingSection').style.display = 'none';
+                                document.getElementById('samplingRows').innerHTML = '';
+                                
+                                // Add back one empty sampling row
+                                document.getElementById('addRow').click();
+                            }
+                        });
+                    } else {
+                        // Error handling from server
+                        Swal.fire({
+                            title: data.title || 'Error!',
+                            text: data.message || 'Something went wrong with the submission.',
+                            icon: data.icon || 'error',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#dc3545'
+                        });
+                    }
+                })
+                .catch(error => {
+                    loadingSwal.close(); // Close loading dialog
+                    console.error('Submission error:', error);
+                    
+                    // Determine error message based on error type
+                    let errorMessage = 'An unexpected error occurred. Please try again.';
+                    if (error.message.includes('Failed to fetch')) {
+                        errorMessage = 'Network error. Please check your connection and try again.';
+                    } else if (error.message.includes('JSON parse error')) {
+                        errorMessage = 'Invalid server response. Please contact support.';
+                    }
+                    
+                    Swal.fire({
+                        title: 'Submission Failed',
+                        text: errorMessage,
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#dc3545'
+                    });
+                });
+            }
+        });
+    });
+
+    // Add event listener for search icon click in edit mode
+    const searchIcon = document.getElementById('search-icon');
+    if (searchIcon) {
+        searchIcon.addEventListener('click', function() {
+            const itrNumber = document.getElementById('itr_form_num').value.trim();
+            if (itrNumber) {
+                fetchExistingRecordWithAlert(itrNumber);
+            } else {
+                Swal.fire({
+                    title: 'Empty ITR Number',
+                    text: 'Please enter an ITR number to search',
+                    icon: 'warning'
+                });
+            }
+        });
+    }
+});
+
+// Enhanced fetch function with SweetAlert feedback
+async function fetchExistingRecordWithAlert(itrNumber) {
+    try {
+        // Show loading state
+        const loadingSwal = Swal.fire({
+            title: 'Searching...',
+            html: `Looking for ITR #${itrNumber}`,
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        const response = await fetch(`fetch_entry.php?itr_form_num=${encodeURIComponent(itrNumber)}`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        loadingSwal.close(); // Close loading dialog
+        
+        if (data.error) {
+            Swal.fire({
+                title: 'Record Not Found',
+                text: data.error || `No record found with ITR #${itrNumber}`,
+                icon: 'warning'
+            });
+            return;
+        }
+
+        // Populate form with existing data
+        populateForm(data);
+        
+        Swal.fire({
+            title: 'Record Loaded',
+            text: `Successfully loaded ITR #${itrNumber}`,
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false
+        });
+    } catch (error) {
+        console.error('Error fetching record:', error);
+        
+        let errorMessage = 'Failed to load record. Please try again.';
+        if (error.message.includes('Failed to fetch')) {
+            errorMessage = 'Network error. Please check your connection.';
+        }
+        
+        Swal.fire({
+            title: 'Error',
+            text: errorMessage,
+            icon: 'error'
+        });
+    }
+}
+</script>
         </body>
         </html>
