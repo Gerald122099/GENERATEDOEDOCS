@@ -1,4 +1,5 @@
 <?php
+session_start();
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -11,7 +12,7 @@ if ($conn->connect_error) {
 }
 
 
-session_start();
+
 function checkLogin() {
     if (!isset($_SESSION['user_id'])) {
         header("Location: index.php");
@@ -111,6 +112,7 @@ function logout() {
     header("Location: home.php"); // Change this to your desired redirect location
     exit();
 }
+
 
 
 function DeleteEntry(){

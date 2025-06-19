@@ -1,6 +1,16 @@
 <?php
 require_once "config.php";
 
+if (isset($_SESSION['user_id'])) {
+    header("Location: home.php");
+    die();
+}
+else {
+
+
+
+
+
 // Set default form to show
 $show_form = isset($_GET['form']) ? $_GET['form'] : 'login';
 
@@ -311,3 +321,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['user_id'])) {
     </script>
 </body>
 </html>
+
+<?php } ?>

@@ -24,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
             $pdf->SetFont('arialnarrow', '', 9);
             
               //variables data
-            $data_business_info['outlet_classification'] = "X";
+            
             $height = 3.2;
             $headerX= 49.5;
             $headerY= 34.5;
@@ -158,8 +158,8 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
              $arr_col1 = [
                 'coc_cert',
                 'coc_posted',
-                'appropriate_test',
                 'valid_permits',
+                'appropriate_test',
                 'week_calib',
                 'outlet_identify',
                 'price_display',
@@ -247,31 +247,39 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id'])) {
             
                 $pdf->Cell($colchecklist2, $height, $value, $bordersize_cheklist, 0);
             }
-            
+                        
+                   $valid_permits = [
+    'valid_permit_LGU',   
+    'valid_permit_BFP',  
+    'valid_permit_DENR',  
+];
 
-           $valid_permits = [
-            'valid_permit_LGU',
-            'valid_permit_BFP',
-            'valid_permit_DENR',
-           ];
-               
-            
-           $pdf->SetFont('ZapfDingbats','',9.5);
-            $permit_yes =(chr(51)); // ✔ (Check mark)
-           $permit_no = (chr(53)); // ✘ (Cross mark)
-           $permitcol = 7;
+$pdf->SetFont('ZapfDingbats', '', 9.5);
+$permit_yes = chr(51); // ✔ (check mark - stays black)
+$permit_no = chr(53);  // ✘ (cross mark - will be red)
+$permitcol = 7;
 
-           for ($i=0; $i<3; $i++){
-            $h= 2.5+ ($i*7) ;
-            $pdf->SetXY($headerX + $h, $headerY + $height * 10.7 + $headerXpadding); 
+for ($i = 0; $i < 3; $i++) {
+    $h = 2.5 + ($i * 7);  // Default spacing
+    
+    // Shift LGU ($i=0) and BFP ($i=1) left by 1 unit
+    if ($i == 0 || $i == 1) {
+        $h -= 1;  
+    }
+    
+    $pdf->SetXY($headerX + $h, $headerY + $height * 10.7 + $headerXpadding);
 
-            if($data_checklist[$valid_permits[$i]] == 1) {  
-                $pdf->Cell($permitcol+10, $height, $permit_yes, $bordersize_checklist, 0);
-            }
-            else{
-                $pdf->Cell($permitcol, $height, $permit_no, $bordersize_checklist, 0);
-            }
-           }
+    if ($data_checklist[$valid_permits[$i]] == 1) {  
+        // ✔ (Valid permit - black)
+        $pdf->SetTextColor(0, 0, 0); // Black
+        $pdf->Cell($permitcol + 10, $height, $permit_yes, $bordersize_checklist, 0);
+    } else {
+        // ✘ (Invalid permit - red)
+        $pdf->SetTextColor(255, 0, 0); // Red
+        $pdf->Cell($permitcol, $height, $permit_no, $bordersize_checklist, 0);
+        $pdf->SetTextColor(0, 0, 0); // Reset to black
+    }
+}
 
 
         

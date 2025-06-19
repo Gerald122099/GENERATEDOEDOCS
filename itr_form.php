@@ -2051,7 +2051,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Submit the form via AJAX
                 const formData = new FormData(itrForm);
                 const isEditMode = document.getElementById('modeToggle').checked;
-                const submitUrl = isEditMode ? 'edit.php' : 'insert_entry.php';
+                const submitUrl = isEditMode ? 'edit_entry.php' : 'insert_entry.php';
                 
                 fetch(submitUrl, {
                     method: 'POST',
